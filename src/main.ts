@@ -1,6 +1,7 @@
 import * as fs from "@tauri-apps/api/fs";
 import * as path from '@tauri-apps/api/path';
 import { PlaylistObject } from './utils/types';
+import { parse } from "./utils/parser";
 
 const appdata = await path.appDataDir();
 const app = document.getElementById('app');
@@ -42,5 +43,13 @@ availablePlaylists.forEach((viewPlaylist) => {
         window.location.href = `/playlist/?url=${viewPlaylist.id}&name=${viewPlaylist.parentElement!.children[0].innerHTML}`
     })
 })
+
+async function parseTest() {
+    console.time();
+    console.log(await parse("IPTorrents"))
+    console.timeEnd();
+}
+
+parseTest();
 
 // loadUrl('https://raw.githubusercontent.com/luongz/iptv-jp/main/jp.m3u')

@@ -145,7 +145,7 @@ button {
 
 .playlist-cards {
   display: grid;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: repeat(3, 33%);
   width: 100%;
   grid-gap: 10px;
 }
@@ -160,6 +160,10 @@ button {
 }
 
 .channels-container {
+  height: 300px;
+}
+
+.channels-container > #virtual-list {
   display: grid;
   grid-template-columns: repeat(5, 19%);
   grid-template-rows: auto auto auto auto auto;

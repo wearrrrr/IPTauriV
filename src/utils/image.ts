@@ -1,7 +1,7 @@
 import Jimp from "jimp"
 
 
-export async function createDummyImage(letter: string) {
+export function createDummyImage(letter: string) {
     if (letter.length > 1) console.warn("createDummyImage() should only accept a single letter! Here be dragons.")
     const canvas = document.createElement('canvas');
     canvas.width = 100;
