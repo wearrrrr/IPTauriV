@@ -51,6 +51,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         newplaylist: resolve(__dirname, 'newplaylist/index.html'),
+        playlist: resolve(__dirname, "playlist/index.html"),
         settings: resolve(__dirname, 'settings/index.html'),
       },
     },

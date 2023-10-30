@@ -10,13 +10,16 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1.4.0",
+    "@tauri-apps/api": "^1.5.1",
     "@types/tingle.js": "^0.13.2",
+    "image-js": "^0.35.5",
     "iptv-playlist-parser": "^0.12.2",
+    "jimp": "^0.22.10",
+    "tauri-plugin-upload-api": "github:tauri-apps/tauri-plugin-upload#v1",
     "tingle.js": "^0.16.0"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^1.4.0",
+    "@tauri-apps/cli": "^1.5.6",
     "@types/node": "^20.3.1",
     "typescript": "^4.8.2",
     "vite": "^4.2.1"

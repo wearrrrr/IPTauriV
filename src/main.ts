@@ -28,12 +28,19 @@ if (await fs.exists(`${appdata}playlists/playlists.json`) == false || await fs.r
                 playlist_div!.innerHTML += `
                     <div class="playlist">
                         <div class="playlist-name">${playlistItem.name}</div>
-                        <button id=${encodeURIComponent(playlistItem.url)} class="play-playlist">Play</button>
+                        <button id=${encodeURIComponent(playlistItem.url)} class="view-playlist">View</button>
                     </div>`;
             }
         }
     });
 }
 
+let availablePlaylists = Array.from(document.getElementsByClassName('view-playlist'));
+
+availablePlaylists.forEach((viewPlaylist) => {
+    viewPlaylist.addEventListener('click', () => {
+        window.location.href = `/playlist/?url=${viewPlaylist.id}&name=${viewPlaylist.parentElement!.children[0].innerHTML}`
+    })
+})
 
 // loadUrl('https://raw.githubusercontent.com/luongz/iptv-jp/main/jp.m3u')

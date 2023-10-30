@@ -159,6 +159,36 @@ button {
   border-radius: 16px;
 }
 
+.channels-container {
+  display: grid;
+  grid-template-columns: repeat(5, 19%);
+  grid-template-rows: auto auto auto auto auto;
+  grid-gap: 10px;
+}
+
+.channel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  height: 100px;
+  background-color: rgb(48, 48, 48);
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.channel-title {
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.channel-logo {
+  max-height: 50%;
+  max-width: 75%;
+}
+
 .bottom-bar {
   background-color: #333;
   overflow: hidden;
