@@ -2,6 +2,7 @@ import tingle from 'tingle.js';
 import * as fs from "@tauri-apps/api/fs";
 import * as path from '@tauri-apps/api/path';
 import { urlRegex, validatePlaylistName } from './utils/regex';
+import { platform } from '@tauri-apps/api/os';
 
 let newPlaylist = document.getElementById('new-playlist');
 let currentPlaylist = document.getElementById("current-playlist-container")!;
@@ -32,7 +33,57 @@ newPlaylist!.addEventListener('click', () => {
     modal.open();
 });
 
-let playlistsContent = await fs.readTextFile(`${appdata}playlists/playlists.json`)
+if (await platform() == "win32") {
+    if (await fs.exists(`${appdata}playlists\\`) == false) {
+        await fs.createDir(`${appdata}playlists\\`);
+    }
+    if (await fs.exists(`${appdata}playlists\\playlists.json`) == false) {
+        await fs.writeTextFile(`${appdata}playlists\\playlists.json`, JSON.stringify({ "playlists": {} }));
+    }
+}
+let playlistsContent: string;
+if (await platform() == "win32") {
+    playlistsContent = await fs.readTextFile(`${appdata}playlists\\playlists.json`)
+} else {
+    playlistsContent = await fs.readTextFile(`${appdata}playlists/playlists.json`)
+}
+
+async function writeToPlaylistJSON(name: string, url: string) {
+    let path: string;
+    if (await platform() == "win32") {
+        path = `${appdata}playlists\\playlists.json`;
+    } else {
+        path = `${appdata}playlists/playlists.json`;
+    }
+
+    try {
+        const data = await readFromPlaylistJSON(path);
+        const playlists = JSON.parse(data);
+        if (!playlists.playlists) {
+            playlists.playlists = {};
+        }
+        playlists.playlists[name] = {
+            "name": name,
+            "url": url
+        };
+        await fs.writeTextFile(path, JSON.stringify(playlists));
+    } catch (error) {
+        console.error("Error writing to the playlist JSON:", error);
+    }
+}
+
+
+async function readFromPlaylistJSON(path: string = `${appdata}playlists/playlists.json`) {
+    let readContent: string;
+    if (await platform() == "win32") {
+        readContent = await fs.readTextFile(path)
+    } else {
+        readContent = await fs.readTextFile(path)
+    }
+    return playlistsContent;
+}
+
+
 
 if (playlistsContent != "") {
     let playlists = JSON.parse(playlistsContent);
@@ -75,19 +126,10 @@ document.getElementById("add-playlist-btn")?.addEventListener('click', async () 
         } else {
             if (await fs.exists(`${appdata}playlists/playlists.json`) == false) {
                 let json = '"playlists": { "name": "' + name + '", "url": "' + url + '" }';
-                await fs.writeTextFile(`${appdata}playlists/playlists.json`, JSON.stringify(json));
+                await writeToPlaylistJSON(name, url);
             } else {
-                await fs.readTextFile(`${appdata}playlists/playlists.json`).then(async (data) => {
-                    let json;
-                    try {
-                        json = JSON.parse(data);
-                    } catch {
-                        json = {"playlists": {}};
-                    }
-                    console.log(json);
-                    // Write to the JSON file in a subobject
-                    json.playlists[name] = {"name": name, "url": url};
-                    await fs.writeTextFile(`${appdata}playlists/playlists.json`, JSON.stringify(json));
+                await readFromPlaylistJSON().then(async (data) => {
+                    await writeToPlaylistJSON(name, url);
                 });
             }
 

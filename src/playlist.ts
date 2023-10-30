@@ -2,7 +2,6 @@ import { createDummyImage } from "./utils/image";
 import { downloadPlaylist, verifyParams, parse } from "./utils/parser";
 
 const URLParams = new URLSearchParams(window.location.search)
-const channelContainer = document.getElementById('channels-container');
 
 let params = {
     url: URLParams.get('url')!.toString(),
@@ -24,20 +23,15 @@ try {
 } catch (err) {
     throw new Error("Parameter verification failed! " + err)
 }
+playlistName.textContent = params.name;
 
-playlistName.innerHTML = params.name;
-
-let playlist = await downloadPlaylist(params.url, params.name);
+await downloadPlaylist(params.url, params.name);
 
 await parse(params.name).then(async (data) => {
-    const itemHeight = 100;
-    const virtualList = document.getElementById('virtual-list')!;
-    const fragment = document.createDocumentFragment();
+    const virtualList = document.getElementById('virtual-list');
 
     function renderAllItems() {
         virtualList!.innerHTML = '';
-
-        console.time();
 
         for (const item of data.items) {
             item.name = item.name.trim();
@@ -54,22 +48,14 @@ await parse(params.name).then(async (data) => {
             if (!item.tvg.logo || item.tvg.logo === '' || item.tvg.logo === null) {
                 channelLogo.src = createDummyImage(item.name.charAt(0).toUpperCase());
             } else {
-                try {
-                    channelLogo.src = item.tvg.logo;
-                } catch {
-                    channelLogo.src = createDummyImage(item.name.charAt(0).toUpperCase());
-                }
-                
+                channelLogo.src = item.tvg.logo;
             }
             channelLogo.classList.add('channel-logo');
 
-            fragment.appendChild(channel);
+            virtualList!.appendChild(channel);
             channel.appendChild(channelLogo);
             channel.appendChild(channelTitle);
         }
-
-        virtualList.appendChild(fragment);
-        console.timeEnd();
     }
 
     // Initial render of all items

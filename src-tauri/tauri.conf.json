@@ -38,6 +38,9 @@
         "open": true,
         "save": false
       },
+      "os": {
+        "all": true
+      },
       "path": {
         "all": true
       }
