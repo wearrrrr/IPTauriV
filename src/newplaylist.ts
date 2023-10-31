@@ -41,11 +41,25 @@ if (await platform() == "win32") {
         await fs.writeTextFile(`${appdata}playlists\\playlists.json`, JSON.stringify({ "playlists": {} }));
     }
 }
-let playlistsContent: string;
-if (await platform() == "win32") {
-    playlistsContent = await fs.readTextFile(`${appdata}playlists\\playlists.json`)
-} else {
-    playlistsContent = await fs.readTextFile(`${appdata}playlists/playlists.json`)
+
+async function getPlaylistContent(): Promise<string> {
+    return new Promise(async (resolve) => {
+        if (await platform() == "win32") {
+            if (await fs.exists(`${appdata}playlists\\playlists.json`)) {
+                resolve(await fs.readTextFile(`${appdata}playlists\\playlists.json`))
+            } else {
+                resolve("")
+            }
+        } else if (await platform() == "linux") {
+            if (await fs.exists(`${appdata}playlists/playlists.json`)) {
+                resolve(await fs.readTextFile(`${appdata}playlists/playlists.json`))
+            } else {
+                resolve("")
+            }
+            
+        }
+        resolve("")
+    })
 }
 
 async function writeToPlaylistJSON(name: string, url: string) {
@@ -58,9 +72,11 @@ async function writeToPlaylistJSON(name: string, url: string) {
 
     try {
         const data = await readFromPlaylistJSON(path);
-        const playlists = JSON.parse(data);
-        if (!playlists.playlists) {
-            playlists.playlists = {};
+        let playlists;
+        try {
+            playlists = JSON.parse(data);
+        } catch {
+            playlists = {"playlists": {}}
         }
         playlists.playlists[name] = {
             "name": name,
@@ -80,13 +96,13 @@ async function readFromPlaylistJSON(path: string = `${appdata}playlists/playlist
     } else {
         readContent = await fs.readTextFile(path)
     }
-    return playlistsContent;
+    return readContent;
 }
 
+let playlistContent = await getPlaylistContent();
 
-
-if (playlistsContent != "") {
-    let playlists = JSON.parse(playlistsContent);
+if (playlistContent != "") {
+    let playlists = JSON.parse(await getPlaylistContent());
     for (const playlistKey in playlists) {
         const playlist = playlists[playlistKey];
         for (const key in playlist) {
@@ -105,10 +121,11 @@ if (playlistsContent != "") {
             `
 
         }
-      }
+    }
 }
 
 document.getElementById("add-playlist-btn")?.addEventListener('click', async () => {
+    console.log("Adding...")
     let url = (<HTMLInputElement>document.getElementById("playlist-url")).value;
     let name = (<HTMLInputElement>document.getElementById("playlist-name")).value;
     if (urlRegex.test(url) == false) {
@@ -125,17 +142,18 @@ document.getElementById("add-playlist-btn")?.addEventListener('click', async () 
             return;
         } else {
             if (await fs.exists(`${appdata}playlists/playlists.json`) == false) {
-                let json = '"playlists": { "name": "' + name + '", "url": "' + url + '" }';
                 await writeToPlaylistJSON(name, url);
             } else {
-                await readFromPlaylistJSON().then(async (data) => {
+                await readFromPlaylistJSON().then(async () => {
                     await writeToPlaylistJSON(name, url);
                 });
             }
 
         }
         modal.close();
+        window.location.reload();
     }
 
     modal.close();
+    window.location.reload();
 })
