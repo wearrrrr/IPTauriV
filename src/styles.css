@@ -15,6 +15,10 @@
   -webkit-text-size-adjust: 100%;
 }
 
+body {
+  overflow-y: hidden;
+}
+
 .container {
   margin: 0;
   padding-top: 10vh;
@@ -150,6 +154,22 @@ button {
   grid-gap: 10px;
 }
 
+.search-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 20px;
+  padding: 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#results-found {
+  height: 24px;
+}
+
 .playlist {
   display: flex;
   flex-direction: column;
@@ -160,14 +180,12 @@ button {
 }
 
 .channels-container {
-  height: 300px;
-}
-
-.channels-container > #virtual-list {
   display: grid;
   grid-template-columns: repeat(5, 19%);
   grid-template-rows: auto auto auto auto auto;
   grid-gap: 10px;
+  height: 500px;
+  overflow: auto;
 }
 
 .channel {
@@ -186,6 +204,8 @@ button {
   font-size: 14px;
   font-weight: 500;
   text-align: center;
+  width: 100%;
+  overflow: hidden;
 }
 
 .channel-logo {

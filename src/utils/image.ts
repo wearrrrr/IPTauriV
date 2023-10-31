@@ -1,11 +1,8 @@
-import Jimp from "jimp"
-
-
-export function createDummyImage(letter: string) {
+export async function createDummyImage(letter: string) {
     if (letter.length > 1) console.warn("createDummyImage() should only accept a single letter! Here be dragons.")
     const canvas = document.createElement('canvas');
-    canvas.width = 100;
-    canvas.height = 100;
+    canvas.width = 75;
+    canvas.height = 75;
     const ctx = canvas.getContext('2d')!;
 
     // Fill the canvas with black background
@@ -13,7 +10,7 @@ export function createDummyImage(letter: string) {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.font = '36px Arial';
-    ctx.fillStyle = randomColor();
+    ctx.fillStyle = randomColorJS();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
@@ -30,12 +27,22 @@ export function createDummyImage(letter: string) {
     return image.src;
 }
 
-// Bitshifting is fun :)
-function randomColor() {
-    // Generate pastel RGB values
-    var r = Math.round(100 + Math.random() * 155);  // R component between 100 and 255
-    var g = Math.round(100 + Math.random() * 155);  // G component between 100 and 255
-    var b = Math.round(100 + Math.random() * 155);  // B component between 100 and 255
+export const dummyImages: { [letter: string]: string } = {};
 
-    return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+export async function generateAndCacheDummyImage(letter: string) {
+  if (dummyImages[letter]) return; // Image already generated and cached
+
+  // Your existing code to generate a dummy image
+  const imageSrc = await createDummyImage(letter);
+  dummyImages[letter] = imageSrc;
+}
+
+// async function randomColor() {
+//     let color = await invoke("generate_rgb");
+//     return color as string;
+// }
+
+// Holy hell this is so much faster than invoking lol
+function randomColorJS() {
+    return `rgb(${Math.floor(Math.random()*128 + 128)},${Math.floor(Math.random()*128 + 128)},${Math.floor(Math.random()*128 + 128)})`;
 }

@@ -14,7 +14,6 @@
     "@types/tingle.js": "^0.13.2",
     "image-js": "^0.35.5",
     "iptv-playlist-parser": "^0.12.2",
-    "jimp": "^0.22.10",
     "tauri-plugin-upload-api": "github:tauri-apps/tauri-plugin-upload#v1",
     "tingle.js": "^0.16.0"
   },
