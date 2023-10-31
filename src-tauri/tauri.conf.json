@@ -66,9 +66,9 @@
         "resizable": true,
         "title": "IPTauriV",
         "width": 950,
-        "height": 650,
+        "height": 725,
         "minWidth": 950,
-        "minHeight": 650
+        "minHeight": 725
       }
     ]
   }

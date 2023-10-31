@@ -13,7 +13,8 @@ enum DlStatus {
     OK,
     FS_EXISTS,
     DOWNLOAD_ERROR,
-    UNKNOWN_ERROR
+    UNKNOWN_ERROR,
+    DOWNLOAD_NEEDED
 }
 
 const appdata = await path.appDataDir();
@@ -24,23 +25,44 @@ async function parse(playlist: string) {
     return data;
 }
 
-async function downloadPlaylist(url: string, name: string, downloadProgressElement: HTMLDivElement) {
+function formatBytes(bytes: number, decimals = 2) {
+    if (!+bytes) return '0 Bytes'
+
+    const k = 1024
+    const dm = decimals < 0 ? 0 : decimals
+    // If a playlist ever gets to 1PiB, I'll be impressed and VERY concerned, good luck parsing that with this codebase lol.
+    const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB']
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i] || '???'}`
+}
+
+async function checkDownloadStatus(name: string) {
     if (await fs.exists(`${appdata}playlists/${name}.m3u8`) == true) {
-        console.log(`Playlist "${name}" already exists!`); 
         return DlStatus.FS_EXISTS;
+    } else {
+        return DlStatus.DOWNLOAD_NEEDED;
     }
+}
+
+async function deleteFailedDownload(name: string) {
+    await fs.removeFile(`${appdata}playlists/${name}.m3u8`);
+}
+
+async function downloadPlaylist(url: string, name: string, downloadProgressContainer: HTMLDivElement, downloadProgressDisplay: HTMLSpanElement) {
     let totalBytesDownloaded = 0;
-    let currentTime = new Date();
+    downloadProgressContainer.classList.add('active');
     await download(url, `${appdata}playlists/${name}.m3u8`, (progress: number, total: number) => {
         totalBytesDownloaded += progress;
-        console.log(progress, total)
+        downloadProgressDisplay.textContent = `${formatBytes(totalBytesDownloaded)} / ${formatBytes(total)}`;
     }).then(() => {
-        let endTime = new Date();
-        let timeTaken = endTime.getTime() - currentTime.getTime();
-        console.log(`Downloaded ${totalBytesDownloaded} bytes in ${timeTaken}ms!`);
+        downloadProgressDisplay.textContent = 'Download complete!';
+        downloadProgressContainer.classList.remove('active');
         return DlStatus.OK
     }).catch((err) => {
         console.error(err);
+        downloadProgressContainer.classList.remove('active');
         return DlStatus.DOWNLOAD_ERROR;
     });
     return DlStatus.UNKNOWN_ERROR;
@@ -59,4 +81,4 @@ function verifyParams(params: ParamsObject) {
     return "OK";
 }
 
-export { parse, verifyParams, downloadPlaylist };
+export { DlStatus, parse, verifyParams, downloadPlaylist, checkDownloadStatus, deleteFailedDownload };

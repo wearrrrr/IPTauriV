@@ -1,5 +1,5 @@
 import { dummyImages, generateAndCacheDummyImage } from "./utils/image";
-import { downloadPlaylist, verifyParams, parse } from "./utils/parser";
+import { downloadPlaylist, verifyParams, parse, checkDownloadStatus, DlStatus, deleteFailedDownload } from "./utils/parser";
 
 const URLParams = new URLSearchParams(window.location.search)
 
@@ -8,14 +8,11 @@ let params = {
     name: URLParams.get('name')!.toString()
 }
 
-
-
-console.log(params)
-
 const playlistName = document.getElementById('playlist-name') as HTMLParagraphElement;
 const channelContainer = document.getElementById('channels-container')! as HTMLDivElement;
 const searchInput = document.getElementById('search-input') as HTMLInputElement;
 const searchResultsFound = document.getElementById('results-found') as HTMLSpanElement;
+const playlistDownloadContainer = document.getElementById('playlist-dl-container') as HTMLDivElement;
 const playlistDownloadProgress = document.getElementById('playlist-download-progress') as HTMLDivElement;
 
 let playlistItemsLength = 0;
@@ -57,10 +54,17 @@ try {
 }
 playlistName.textContent = params.name;
 
-await downloadPlaylist(params.url, params.name, playlistDownloadProgress);
 
+if (await checkDownloadStatus(params.name) != DlStatus.FS_EXISTS) {
+    await downloadPlaylist(params.url, params.name, playlistDownloadContainer, playlistDownloadProgress).then(async (result) => {
+        if (result == DlStatus.DOWNLOAD_ERROR) {
+            await deleteFailedDownload(params.name);
+            window.location.reload();
+        }
+    });
+}
 await parse(params.name).then(async (data) => {
-    const batchSize = 10; // Change this to your desired batch size
+    const batchSize = 1;
     let totalItems = 0;
     let itemsLoaded = new Set<number>();
     playlistItemsLength = data.items.length;
