@@ -6,13 +6,21 @@
     <title>Playlist</title>
     <link rel="stylesheet" href="/src/styles.css"/>
     <script src="/src/playlist.ts" type="module" defer></script>
+    <script src="/src/navigation.ts" type="module" defer></script>
 </head>
 <body>
-    <h1>Playlist <span id="playlist-name"></span>: </h1>
+    <div id="playlist-header">
+        <div id="back-button" class="back-button"><img class="bottom-bar-settings-img" src="/src/assets/back.svg" alt="Back Button"></div>
+        <h1>Playlist <span id="playlist-name"></span>: </h1>
+    </div>
     <div class="search-container">
         <input id="search-input" placeholder="Search..." type="text">
         <div id="results-found"></div>
     </div>
+    <div class="playlist-dl-container">
+        <div class="playlist-downloading" id="playlist-download-progress"></div>
+    </div>
+    
     <div id="channels-container" class="channels-container">
         
     </div>

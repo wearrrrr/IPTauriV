@@ -16,6 +16,7 @@ const playlistName = document.getElementById('playlist-name') as HTMLParagraphEl
 const channelContainer = document.getElementById('channels-container')! as HTMLDivElement;
 const searchInput = document.getElementById('search-input') as HTMLInputElement;
 const searchResultsFound = document.getElementById('results-found') as HTMLSpanElement;
+const playlistDownloadProgress = document.getElementById('playlist-download-progress') as HTMLDivElement;
 
 let playlistItemsLength = 0;
 
@@ -56,7 +57,7 @@ try {
 }
 playlistName.textContent = params.name;
 
-await downloadPlaylist(params.url, params.name);
+await downloadPlaylist(params.url, params.name, playlistDownloadProgress);
 
 await parse(params.name).then(async (data) => {
     const batchSize = 10; // Change this to your desired batch size

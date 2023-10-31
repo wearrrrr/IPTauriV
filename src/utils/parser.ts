@@ -24,7 +24,7 @@ async function parse(playlist: string) {
     return data;
 }
 
-async function downloadPlaylist(url: string, name: string) {
+async function downloadPlaylist(url: string, name: string, downloadProgressElement: HTMLDivElement) {
     if (await fs.exists(`${appdata}playlists/${name}.m3u8`) == true) {
         console.log(`Playlist "${name}" already exists!`); 
         return DlStatus.FS_EXISTS;
