@@ -1,5 +1,7 @@
+import { openExternalPlayer } from "./utils/external_player";
 import { dummyImages, generateAndCacheDummyImage } from "./utils/image";
 import { downloadPlaylist, verifyParams, parse, checkDownloadStatus, DlStatus, deleteFailedDownload } from "./utils/parser";
+import { createToast } from "./utils/toast";
 
 const URLParams = new URLSearchParams(window.location.search)
 
@@ -64,7 +66,8 @@ if (await checkDownloadStatus(params.name) != DlStatus.FS_EXISTS) {
     });
 }
 await parse(params.name).then(async (data) => {
-    const batchSize = 1;
+    document.getElementById('loading-container')!.style.opacity = "0";
+    const batchSize = 10;
     let totalItems = 0;
     let itemsLoaded = new Set<number>();
     playlistItemsLength = data.items.length;
@@ -87,6 +90,10 @@ await parse(params.name).then(async (data) => {
                 const channel = document.createElement('div');
                 channel.classList.add('channel');
                 channel.dataset.url = item.url;
+                channel.onclick = async () => {
+                    createToast(`Opening ${item.name} in ${localStorage.getItem('player') || 'VLC'}...`, 4000);
+                    await openExternalPlayer(localStorage.getItem("player"), item.url, item.name)
+                }
     
                 const image = document.createElement('img');
                 image.classList.add('channel-logo');

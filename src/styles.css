@@ -39,6 +39,49 @@
   border-radius: 25%;
 }
 
+.header {
+  margin-top: 20px;
+}
+
+#loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  transition: 250ms ease-in-out;
+}
+
+.lds-dual-ring {
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+}
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid #fff;
+  border-color: #fff transparent #fff transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
 #playlist-dl-container.active {
   position: fixed;
   width: 100%;
@@ -218,6 +261,15 @@ button {
   background-color: rgb(48, 48, 48);
   border-radius: 16px;
   cursor: pointer;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .channel-title {

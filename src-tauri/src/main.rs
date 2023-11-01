@@ -13,6 +13,7 @@ fn generate_rgb() -> String {
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_upload::init())
+        .plugin(tauri_plugin_fs_extra::init())
         .invoke_handler(tauri::generate_handler![generate_rgb])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

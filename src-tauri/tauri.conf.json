@@ -15,7 +15,25 @@
       "all": false,
       "shell": {
         "all": false,
-        "open": true
+        "open": true,
+        "execute": true,
+        "scope": [
+          {
+            "cmd": "vlc",
+            "args": true,
+            "name": "vlc"
+          },
+          {
+            "cmd": "mpv",
+            "args": true,
+            "name": "mpv"
+          },
+          {
+            "cmd": "cmd",
+            "args": true,
+            "name": "run_player"
+          }
+        ]
       },
       "fs": {
         "all": false,

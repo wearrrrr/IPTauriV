@@ -6,7 +6,7 @@
     <title>Playlist</title>
     <link rel="stylesheet" href="/src/styles.css"/>
     <script src="/src/playlist.ts" type="module" defer></script>
-    <script src="/src/navigation.ts" type="module" defer></script>
+    <script src="/src/utils/navigation.ts" type="module" defer></script>
 </head>
 <body>
     <div id="playlist-header">
@@ -17,12 +17,21 @@
         <input id="search-input" placeholder="Search..." type="text">
         <div id="results-found"></div>
     </div>
+    <div id="loading-container">
+        <div class="lds-dual-ring" id="loading-ring"></div>
+    </div>
+    
     <div id="playlist-dl-container">
         <div class="playlist-downloading">Downloading... <span id="playlist-download-progress"></span></div>
     </div>
     
     <div id="channels-container" class="channels-container">
         
+    </div>
+    <div class="bottom-bar">
+        <a href="/settings/">
+          <img class="bottom-bar-settings-img" src="/src/assets/settings.svg" alt="">
+        </a>
     </div>
 </body>
 </html>

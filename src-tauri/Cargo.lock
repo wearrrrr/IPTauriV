@@ -1414,6 +1414,7 @@ dependencies = [
  "serde_json",
  "tauri",
  "tauri-build",
+ "tauri-plugin-fs-extra",
  "tauri-plugin-upload",
 ]
 
@@ -1922,6 +1923,16 @@ dependencies = [
  "log",
  "serde",
  "winapi",
+]
+
+[[package]]
+name = "os_pipe"
+version = "1.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ae859aa07428ca9a929b936690f8b12dc5f11dd8c6992a18ca93919f28bc177"
+dependencies = [
+ "libc",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -2754,6 +2765,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "shared_child"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0d94659ad3c2137fef23ae75b03d5241d633f8acded53d672decfa0e6e0caef"
+dependencies = [
+ "libc",
+ "winapi",
+]
+
+[[package]]
 name = "simd-adler32"
 version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3055,6 +3076,7 @@ dependencies = [
  "once_cell",
  "open",
  "os_info",
+ "os_pipe",
  "percent-encoding",
  "rand 0.8.5",
  "raw-window-handle",
@@ -3065,6 +3087,7 @@ dependencies = [
  "serde_json",
  "serde_repr",
  "serialize-to-javascript",
+ "shared_child",
  "state",
  "sys-locale",
  "tar",
@@ -3142,9 +3165,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "tauri-plugin-fs-extra"
+version = "0.0.0"
+source = "git+https://github.com/tauri-apps/plugins-workspace?branch=v1#8d6045421a553330e9da8b9e1e4405d419c5ea88"
+dependencies = [
+ "log",
+ "serde",
+ "serde_json",
+ "tauri",
+ "thiserror",
+]
+
+[[package]]
 name = "tauri-plugin-upload"
 version = "0.0.0"
-source = "git+https://github.com/tauri-apps/plugins-workspace?branch=v1#68d77f999c72fd260b86ff57f8fd64755de04361"
+source = "git+https://github.com/tauri-apps/plugins-workspace?branch=v1#8d6045421a553330e9da8b9e1e4405d419c5ea88"
 dependencies = [
  "futures-util",
  "log",
