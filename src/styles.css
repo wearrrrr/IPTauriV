@@ -81,6 +81,19 @@
   }
 }
 
+.settings-collection {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.settings-container {
+  margin-top: 20px;
+  margin-left: 20px;
+}
+
+.settings-label {
+  display: block;
+}
 
 #playlist-dl-container.active {
   position: fixed;
