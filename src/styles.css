@@ -1,4 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;1,700&display=swap');
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/src/assets/Ubuntu.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 :root {
   font-family: "Ubuntu", "Helvetica Neue", sans-serif;
   font-size: 16px;
@@ -35,7 +42,12 @@
   max-height: 35px;
 }
 
+.back-button > img:hover {
+  border-color: #eb4cc9;
+}
+
 .back-button > img {
+  transition: 250ms ease-in-out;
   border-radius: 25%;
 }
 
@@ -95,6 +107,11 @@
   display: block;
 }
 
+.settings-sublabel {
+  display: block;
+  margin: 0;
+}
+
 #playlist-dl-container.active {
   position: fixed;
   width: 100%;
@@ -105,6 +122,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  transform: translate(0, -50%);
+  z-index: 2;
 }
 
 #playlist-dl-container {
@@ -113,6 +132,24 @@
 
 .playlist-downloading {
   font-size: 24px;
+}
+
+.search-filters {
+  display: flex;
+  flex-direction: row;
+  margin-top: 5px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.search-filter {
+  background-color: #1d1d1d;
+  padding-inline: 10px;
+  min-width: 40px;
+  text-align: center;
+  padding: 5px;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
 .row {
@@ -180,6 +217,12 @@ button {
 .add-playlist {
   margin-top: 10px;
   padding: 0.5rem;
+}
+
+.add-playlist > img {
+  height: 20px;
+  position: relative;
+  top: 3px;
 }
 
 .playlist-input {
@@ -262,6 +305,7 @@ button {
   grid-template-rows: auto auto auto auto auto;
   grid-gap: 10px;
   overflow: scroll;
+  padding-bottom: 35px;
 }
 
 .channel {

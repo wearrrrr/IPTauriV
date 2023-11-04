@@ -18,10 +18,19 @@ export async function openExternalPlayer(player: string | null, url: string, nam
         mpvPlayerFlags.push(`--title=${name}`);
         mpvPlayerFlags.push("--force-window=immediate");
         mpvPlayerFlags.push(`--media-title=${name}`);
-        mpvPlayerFlags.push(`--network-timeout=${localStorage.getItem("network-timeout") || 20}`)
+        mpvPlayerFlags.push(`--hwdec=${localStorage.getItem("hwdec") || "no"}`)
+        let networkTimeout = localStorage.getItem("network-timeout");
+        try {
+            let intNetworkTimeout = parseInt(networkTimeout!);
+            if (intNetworkTimeout >= 0) {
+                mpvPlayerFlags.push(`--network-timeout=${networkTimeout}`)
+            }
+        } catch {
+            mpvPlayerFlags.push(`--network-timeout=${20}`)
+        }
+        
         mpvPlayerFlags.push(`--geometry=${localStorage.getItem("window-geometry") || "50%x50%"}`)
         mpvPlayerFlags.push("--autofit=50%")
-
 
         preferredFlags = mpvPlayerFlags;
     } else if (player == 'vlc') {
@@ -61,5 +70,11 @@ export async function openExternalPlayer(player: string | null, url: string, nam
             child.kill();
         }
     });
+
+    command.addListener('close', (signal) => {
+        if (signal.code == 1) {
+            createToast(`Fatal Error occured when launching ${player}!`, 4000)
+        }
+    })
     console.log("spawned!")
 }

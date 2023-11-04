@@ -16,8 +16,12 @@ const searchInput = document.getElementById('search-input') as HTMLInputElement;
 const searchResultsFound = document.getElementById('results-found') as HTMLSpanElement;
 const playlistDownloadContainer = document.getElementById('playlist-dl-container') as HTMLDivElement;
 const playlistDownloadProgress = document.getElementById('playlist-download-progress') as HTMLDivElement;
+const allFilter = document.getElementById('filter-all') as HTMLButtonElement;
 
 let playlistItemsLength = 0;
+let registedFilters = new Set<string>();
+
+registedFilters.add("All");
 
 function debounce(func: Function, delay: number) {
     let timer: NodeJS.Timeout;
@@ -44,6 +48,65 @@ function debounce(func: Function, delay: number) {
       }
     });
   }, 150));
+
+    allFilter.addEventListener('click', () => {
+        let resultsFound = 0;
+        console.log(channelContainer.children.length)
+        Array.from(channelContainer.children).forEach((channel) => {
+        const title = channel.querySelector('.channel-title') as HTMLDivElement;
+        if (searchInput.value !== '' && title.textContent?.toLowerCase().includes(searchInput.value.toLowerCase())) {
+            channel.classList.remove("hidden");
+            resultsFound++;
+            return;
+        } else {
+            if (searchInput.value == '') {
+                channel.classList.remove('hidden');
+            }
+        } 
+        if (playlistItemsLength == resultsFound || resultsFound == 0) {
+            searchResultsFound.textContent = '';
+        } else {
+            searchResultsFound.textContent = `${resultsFound} results found`;
+        }
+    });
+  })
+
+    // movieFilter.addEventListener('click', () => {
+    //     let resultsFound = 0;
+    //     Array.from(channelContainer.children).forEach((channel) => {
+    //         if (channel instanceof HTMLDivElement) {
+    //             if (channel.dataset.group?.includes('Movie')) {
+    //                 if (searchInput.value !== '' && !channel.querySelector('.channel-title')?.textContent?.toLowerCase().includes(searchInput.value.toLowerCase())) {
+    //                     return; 
+    //                 }
+    //                 channel.classList.remove('hidden');
+    //                 resultsFound++;
+    //             } else {
+    //                 channel.classList.add('hidden');
+    //             }
+    //         }
+    //     });
+    //     searchResultsFound.textContent = `${resultsFound} results found`;
+    // })
+
+    // tvFilter.addEventListener('click', () => {
+    //     let resultsFound = 0;
+    //     Array.from(channelContainer.children).forEach((channel) => {
+    //         if (channel instanceof HTMLDivElement) {
+    //             if (channel.dataset.group?.includes('TV')) {
+    //                 if (searchInput.value !== '' && !channel.querySelector('.channel-title')?.textContent?.toLowerCase().includes(searchInput.value.toLowerCase())) {
+    //                     return; 
+    //                 }
+    //                 channel.classList.remove('hidden');
+    //                 resultsFound++;
+    //             } else {
+    //                 channel.classList.add('hidden');
+    //             }
+    //         }
+    //     });
+    //     searchResultsFound.textContent = `${resultsFound} results found`;
+    
+    // })
 
 if (playlistName == undefined) {
     throw new Error("Playlist name not found.. this should never happen.")
@@ -90,18 +153,24 @@ await parse(params.name).then(async (data) => {
                 const channel = document.createElement('div');
                 channel.classList.add('channel');
                 channel.dataset.url = item.url;
+                channel.dataset.group = item.group.title;
                 channel.onclick = async () => {
                     createToast(`Opening ${item.name} in ${localStorage.getItem('player') || 'VLC'}...`, 4000);
                     await openExternalPlayer(localStorage.getItem("player"), item.url, item.name)
                 }
+
+                checkAndRegisterNewFilter(item.group.title)
     
                 const image = document.createElement('img');
                 image.classList.add('channel-logo');
                 image.loading = 'lazy';
 
                 image.addEventListener('error', () => {
-                    image.src = dummyImages[item.name.charAt(0).toUpperCase()];
-                    console.log("Image load fail!")
+                    try {
+                        image.src = dummyImages[item.name.charAt(0).toUpperCase()];
+                    } catch {
+                        console.error("Failed to load image and backup image for: " + item.name)
+                    }
                 })
 
                 image.onload = function() {
@@ -109,7 +178,10 @@ await parse(params.name).then(async (data) => {
                         image.src = dummyImages[item.name.charAt(0).toUpperCase()];
                     }
                 };
-    
+
+                if (item.tvg.logo) {
+                    item.tvg.logo = item.tvg.logo.replace(/^(http|https)\/\//, '$1://');
+                }
                 image.src = item.tvg.logo || dummyImages[item.name.charAt(0).toUpperCase()];
     
                 const titleElement = document.createElement('p');
@@ -148,4 +220,38 @@ await parse(params.name).then(async (data) => {
     totalItems = data.items.length;
     loadItemsInBatch();
 });
-  
+
+function checkAndRegisterNewFilter(groupName: string) {
+    if (!registedFilters.has(groupName)) {
+        let newFilter = document.createElement('button');
+        newFilter.classList.add('filter');
+        newFilter.id = `filter-${groupName}`;
+        newFilter.textContent = groupName;
+        newFilter.addEventListener('click', () => {
+            let resultsFound = 0;
+            Array.from(channelContainer.children).forEach((channel) => {
+                if (channel instanceof HTMLDivElement) {
+                    if (channel.dataset.group?.includes(groupName)) {
+                        if (searchInput.value !== '' && channel.querySelector('.channel-title')?.textContent?.toLowerCase().includes(searchInput.value.toLowerCase())) {
+                            channel.classList.remove('hidden');
+                            resultsFound++;
+                            return;
+                        } else {
+                            if (searchInput.value == '') {
+                                channel.classList.remove('hidden');
+                                resultsFound++;
+                            }
+                        }
+                        
+                        
+                    } else {
+                        channel.classList.add('hidden');
+                    }
+                }
+            });
+            searchResultsFound.textContent = `${resultsFound} results found`;
+        })
+        document.getElementById('playlist-search-filters')?.appendChild(newFilter);
+        registedFilters.add(groupName);
+    }
+}

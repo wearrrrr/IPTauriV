@@ -6,8 +6,13 @@
     <title>Settings</title>
     <link rel="stylesheet" href="/src/styles.css">
     <script src="/src/settings.ts" type="module" defer></script>
+    <script src="/src/utils/navigation.ts" type="module" defer></script>
 </head>
 <body>
+    <div id="playlist-header">
+        <div id="back-button" class="back-button"><img class="bottom-bar-settings-img" src="/src/assets/back.svg" alt="Back Button"></div>
+        <h1>Playlist <span id="playlist-name"></span>: </h1>
+    </div>
     <div class="header">
         <h1>IPTauriV Settings: </h1>
     </div>
@@ -31,6 +36,14 @@
                 <label class="settings-label" for="window-geometry">Window Geometry</label>
                 <input type="text" id="window-geometry">
                 <button id="save-window-geometry">Save</button>
+            </div>
+        </div>
+        <div class="settings-container">
+            <div class="window-geometry">
+                <label class="settings-label" for="window-geometry">MPV HW Decoding</label>
+                <p class="settings-sublabel"><a target="_blank" rel="noopener noreferrer" href="https://mpv.io/manual/stable/#options-hwdec">Valid Options</a></p>
+                <input type="text" id="mpv-hw-decode">
+                <button id="save-mpv-hw-decode">Save</button>
             </div>
         </div>
     </div>

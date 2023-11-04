@@ -40,6 +40,13 @@ if (await platform() == "win32") {
     if (await fs.exists(`${appdata}playlists\\playlists.json`) == false) {
         await fs.writeTextFile(`${appdata}playlists\\playlists.json`, JSON.stringify({ "playlists": {} }));
     }
+} else if (await platform() == "linux") {
+    if (await fs.exists(`${appdata}playlists/`) == false) {
+        await fs.createDir(`${appdata}playlists/`);
+    }
+    if (await fs.exists(`${appdata}playlists/playlists.json`) == false) {
+        await fs.writeTextFile(`${appdata}playlists/playlists.json`, JSON.stringify({ "playlists": {} }));
+    }
 }
 
 async function getPlaylistContent(): Promise<string> {
@@ -78,7 +85,7 @@ async function writeToPlaylistJSON(name: string, url: string) {
         } catch {
             playlists = {"playlists": {}}
         }
-        playlists.playlists[name] = {
+        playlists["playlists"][name] = {
             "name": name,
             "url": url
         };
@@ -119,6 +126,9 @@ if (playlistContent != "") {
                     <button id=${encodeURIComponent(playlistItem.url)} class="play-playlist">View</button>
                 </div>
             `
+            document.getElementById(encodeURIComponent(playlistItem.url))?.addEventListener('click', () => {
+                window.location.href = `/playlist/?url=${encodeURIComponent(playlistItem.url)}&name=${encodeURIComponent(playlistItem.name)}`
+            })
 
         }
     }
