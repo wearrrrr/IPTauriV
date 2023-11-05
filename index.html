@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri App</title>
-    <link rel="stylesheet" href="/src/styles.css"/>
-    <script type="module" src="/src/main.ts" defer></script>
-    <script type="module" src="/src/utils/parser.ts" defer></script>
-  </head>
-
-  <body>
-    <div id="app" class="app index">
-      <h1>Welcome to IPTauriV!</h1>
-      <h2>Playlists: </h2>
-      <div id="playlists" class="playlist-cards">
-
-      </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/src/styles.css">
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.4.0/css/all.css">
+    <link rel="stylesheet" href="/src/tingle.min.css">
+    <script type="module" src="/src/index.ts" defer></script>
+</head>
+<body id="app">
+    <div id="playlist-header">
+        <h1>Welcome to IPTauriV! </h1>
     </div>
+    <div id="add-playlist" class="newplaylist">
+        <button id="new-playlist"><i class="fa-solid fa-plus"></i> New Playlist</button>
+    </div>
+
+    <div id="current-playlist-container"></div>
+
     <div class="bottom-bar">
       <a href="/settings/">
         <img class="bottom-bar-settings-img" src="/src/assets/settings.svg" alt="">
       </a>
-    </div>
-  </body>
+  </div>
+</body>
 </html>

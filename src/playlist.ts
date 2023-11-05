@@ -16,12 +16,9 @@ const searchInput = document.getElementById('search-input') as HTMLInputElement;
 const searchResultsFound = document.getElementById('results-found') as HTMLSpanElement;
 const playlistDownloadContainer = document.getElementById('playlist-dl-container') as HTMLDivElement;
 const playlistDownloadProgress = document.getElementById('playlist-download-progress') as HTMLDivElement;
-const allFilter = document.getElementById('filter-all') as HTMLButtonElement;
 
 let playlistItemsLength = 0;
 let registedFilters = new Set<string>();
-
-registedFilters.add("All");
 
 function debounce(func: Function, delay: number) {
     let timer: NodeJS.Timeout;
@@ -49,65 +46,6 @@ function debounce(func: Function, delay: number) {
     });
   }, 150));
 
-    allFilter.addEventListener('click', () => {
-        let resultsFound = 0;
-        console.log(channelContainer.children.length)
-        Array.from(channelContainer.children).forEach((channel) => {
-        const title = channel.querySelector('.channel-title') as HTMLDivElement;
-        if (searchInput.value !== '' && title.textContent?.toLowerCase().includes(searchInput.value.toLowerCase())) {
-            channel.classList.remove("hidden");
-            resultsFound++;
-            return;
-        } else {
-            if (searchInput.value == '') {
-                channel.classList.remove('hidden');
-            }
-        } 
-        if (playlistItemsLength == resultsFound || resultsFound == 0) {
-            searchResultsFound.textContent = '';
-        } else {
-            searchResultsFound.textContent = `${resultsFound} results found`;
-        }
-    });
-  })
-
-    // movieFilter.addEventListener('click', () => {
-    //     let resultsFound = 0;
-    //     Array.from(channelContainer.children).forEach((channel) => {
-    //         if (channel instanceof HTMLDivElement) {
-    //             if (channel.dataset.group?.includes('Movie')) {
-    //                 if (searchInput.value !== '' && !channel.querySelector('.channel-title')?.textContent?.toLowerCase().includes(searchInput.value.toLowerCase())) {
-    //                     return; 
-    //                 }
-    //                 channel.classList.remove('hidden');
-    //                 resultsFound++;
-    //             } else {
-    //                 channel.classList.add('hidden');
-    //             }
-    //         }
-    //     });
-    //     searchResultsFound.textContent = `${resultsFound} results found`;
-    // })
-
-    // tvFilter.addEventListener('click', () => {
-    //     let resultsFound = 0;
-    //     Array.from(channelContainer.children).forEach((channel) => {
-    //         if (channel instanceof HTMLDivElement) {
-    //             if (channel.dataset.group?.includes('TV')) {
-    //                 if (searchInput.value !== '' && !channel.querySelector('.channel-title')?.textContent?.toLowerCase().includes(searchInput.value.toLowerCase())) {
-    //                     return; 
-    //                 }
-    //                 channel.classList.remove('hidden');
-    //                 resultsFound++;
-    //             } else {
-    //                 channel.classList.add('hidden');
-    //             }
-    //         }
-    //     });
-    //     searchResultsFound.textContent = `${resultsFound} results found`;
-    
-    // })
-
 if (playlistName == undefined) {
     throw new Error("Playlist name not found.. this should never happen.")
 }
@@ -134,6 +72,7 @@ await parse(params.name).then(async (data) => {
     let totalItems = 0;
     let itemsLoaded = new Set<number>();
     playlistItemsLength = data.items.length;
+    registerAllFilter();
 
     // Define the Intersection Observer only once
     const observerOptions: IntersectionObserverInit = {
@@ -158,8 +97,9 @@ await parse(params.name).then(async (data) => {
                     createToast(`Opening ${item.name} in ${localStorage.getItem('player') || 'VLC'}...`, 4000);
                     await openExternalPlayer(localStorage.getItem("player"), item.url, item.name)
                 }
-
-                checkAndRegisterNewFilter(item.group.title)
+                if (item.group.title !== '') {
+                    checkAndRegisterNewFilter(item.group.title)
+                }
     
                 const image = document.createElement('img');
                 image.classList.add('channel-logo');
@@ -220,6 +160,39 @@ await parse(params.name).then(async (data) => {
     totalItems = data.items.length;
     loadItemsInBatch();
 });
+
+function registerAllFilter() {
+    if (!registedFilters.has("All")) {
+        let allFilter = document.createElement('button');
+        allFilter.classList.add('filter');
+        allFilter.id = `filter-all`;
+        allFilter.textContent = "All";
+        allFilter.addEventListener('click', () => {
+            let resultsFound = 0;
+            Array.from(channelContainer.children).forEach((channel) => {
+                if (channel instanceof HTMLDivElement) {
+                    if (searchInput.value !== '' && channel.querySelector('.channel-title')?.textContent?.toLowerCase().includes(searchInput.value.toLowerCase())) {
+                        channel.classList.remove('hidden');
+                        resultsFound++;
+                        return;
+                    } else {
+                        if (searchInput.value == '') {
+                            channel.classList.remove('hidden');
+                            resultsFound++;
+                        }
+                    }
+                    
+                    
+                } else {
+                    channel.classList.add('hidden');
+                }
+            });
+            searchResultsFound.textContent = `${resultsFound} results found`;
+        })
+        document.getElementById('playlist-search-filters')?.appendChild(allFilter);
+        registedFilters.add("All");
+    }
+}
 
 function checkAndRegisterNewFilter(groupName: string) {
     if (!registedFilters.has(groupName)) {

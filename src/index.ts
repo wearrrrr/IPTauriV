@@ -118,20 +118,23 @@ if (playlistContent != "") {
                 name: value.name,
                 url: value.url
             }
-
-            console.log(playlistItem.name)
             currentPlaylist.innerHTML += `
                 <div class="playlist">
                     <div id=${validatePlaylistName(playlistItem.name)} class="playlist-name">${playlistItem.name}</div>
                     <button id=${encodeURIComponent(playlistItem.url)} class="play-playlist">View</button>
                 </div>
             `
-            document.getElementById(encodeURIComponent(playlistItem.url))?.addEventListener('click', () => {
-                window.location.href = `/playlist/?url=${encodeURIComponent(playlistItem.url)}&name=${encodeURIComponent(playlistItem.name)}`
-            })
 
         }
     }
+    let availablePlaylists = document.getElementsByClassName('play-playlist')
+
+
+    Array.from(availablePlaylists).forEach((viewPlaylist) => {
+        viewPlaylist.addEventListener('click', () => {
+            window.location.href = `/playlist/?url=${viewPlaylist.id}&name=${viewPlaylist.parentElement!.children[0].innerHTML}`
+        })
+    })
 }
 
 document.getElementById("add-playlist-btn")?.addEventListener('click', async () => {

@@ -6,6 +6,9 @@ export function createToast(message: string, duration: number, onClick?: () => v
         text: message,
         duration: duration,
         onClick: onClick,
+        style: {
+            width: "auto"
+        },
         close: true,
         }).showToast();
 }

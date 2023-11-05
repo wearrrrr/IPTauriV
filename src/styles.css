@@ -31,6 +31,14 @@
   text-align: center;
 }
 
+#current-playlist-container {
+  display: grid;
+  /* god I hate you CSS. */
+  grid-template-columns: repeat(3, 32.65%);
+  width: 100%;
+  grid-gap: 10px;
+}
+
 #playlist-header {
   display: flex;
   flex-direction: column;
@@ -94,13 +102,15 @@
 }
 
 .settings-collection {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  width: 90%;
+  margin: 0 auto;
+  grid-gap: 15px;
 }
 
 .settings-container {
   margin-top: 20px;
-  margin-left: 20px;
 }
 
 .settings-label {
@@ -214,6 +224,10 @@ button {
   align-self: flex-start;
 }
 
+#has-playlist {
+  margin-bottom: 10px;
+}
+
 .add-playlist {
   margin-top: 10px;
   padding: 0.5rem;
@@ -301,10 +315,13 @@ button {
 
 .channels-container {
   display: grid;
-  grid-template-columns: repeat(5, 19%);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  padding: 0;
+  margin: 0;
+
   grid-template-rows: auto auto auto auto auto;
   grid-gap: 10px;
-  overflow: scroll;
+  overflow-y: scroll;
   padding-bottom: 35px;
 }
 

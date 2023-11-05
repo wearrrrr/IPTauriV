@@ -17,7 +17,7 @@ export async function openExternalPlayer(player: string | null, url: string, nam
         mpvPlayerFlags.push(url)
         mpvPlayerFlags.push(`--title=${name}`);
         mpvPlayerFlags.push("--force-window=immediate");
-        mpvPlayerFlags.push(`--media-title=${name}`);
+        mpvPlayerFlags.push(`--force-media-title=${name}`);
         mpvPlayerFlags.push(`--hwdec=${localStorage.getItem("hwdec") || "no"}`)
         let networkTimeout = localStorage.getItem("network-timeout");
         try {
@@ -58,11 +58,13 @@ export async function openExternalPlayer(player: string | null, url: string, nam
     }
 
     let child = await command.spawn();
+
+    console.log(`Opening ${url} with ${player}!`)
+
     // check for errors
     command.stdout.on('data', (line) => {
-        console.log(line)
         if (/HTTP error 404 Not Found/g.test(line) == true) {
-            createToast('Error: 404 Not Found!', 4000)
+            createToast('Failed to load Playlist! Error 404.', 4000)
             child.kill();
             
         } else if (/HTTP error 403 Forbidden/g.test(line) == true) {

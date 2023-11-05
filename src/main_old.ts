@@ -5,6 +5,7 @@ import { PlaylistObject } from './utils/types';
 const appdata = await path.appDataDir();
 const app = document.getElementById('app');
 const playlist_div = document.getElementById('playlists');
+const hasPlaylist = document.getElementById('has-playlist');
 console.time();
 if (await fs.exists(`${appdata}playlists/playlists.json`) == false || await fs.readTextFile(`${appdata}playlists/playlists.json`) == "") {
     app!.innerHTML += `You don't have any playlists added! Add one below!
@@ -32,15 +33,7 @@ if (await fs.exists(`${appdata}playlists/playlists.json`) == false || await fs.r
                         <button id=${encodeURIComponent(playlistItem.url)} class="view-playlist">View</button>
                     </div>`;
             }
+            hasPlaylist!.innerHTML = `<button id="add-playlist" class="add-playlist"><img src="/src/assets/plus.svg"> Add Playlist</button>`
         }
     });
 }
-
-let availablePlaylists = document.getElementsByClassName('view-playlist')
-
-
-Array.from(availablePlaylists).forEach((viewPlaylist) => {
-    viewPlaylist.addEventListener('click', () => {
-        window.location.href = `/playlist/?url=${viewPlaylist.id}&name=${viewPlaylist.parentElement!.children[0].innerHTML}`
-    })
-})
