@@ -1,9 +1,11 @@
 import { openExternalPlayer } from "./utils/external_player";
 import { dummyImages, generateAndCacheDummyImage } from "./utils/image";
-import { downloadPlaylist, verifyParams, parse, checkDownloadStatus, DlStatus, deleteFailedDownload } from "./utils/parser";
+import { downloadPlaylist, verifyParams, parse, checkDownloadStatus, DlStatus, deleteFailedDownload, parseEPGXMLData } from "./utils/parser";
+import { ResponseType, getClient } from "@tauri-apps/api/http";
 import { createToast } from "./utils/toast";
 
 const URLParams = new URLSearchParams(window.location.search)
+const httpClient = await getClient();
 
 let params = {
     url: URLParams.get('url')!.toString(),
@@ -160,6 +162,16 @@ await parse(params.name).then(async (data) => {
     totalItems = data.items.length;
     loadItemsInBatch();
 });
+
+console.time("EPG Parse");
+await httpClient.get("https://epg.112114.xyz/pp.xml", { responseType: ResponseType.Text }).then(async (response) => {
+    parseEPGXMLData(response.data as string).then((data) => {
+        console.timeEnd("EPG Parse");
+        console.log(data);
+    })
+});
+
+
 
 function registerAllFilter() {
     if (!registedFilters.has("All")) {

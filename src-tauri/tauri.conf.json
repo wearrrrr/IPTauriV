@@ -59,6 +59,11 @@
       "os": {
         "all": true
       },
+      "http": {
+        "all": true,
+        "request": true,
+        "scope": ["https://**/*"]
+      },
       "path": {
         "all": true
       }

@@ -10,9 +10,11 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@codewithkyle/notifyjs": "^4.1.0",
+    "@iptv/xmltv": "^0.1.6",
     "@tauri-apps/api": "^1.5.1",
     "@types/tingle.js": "^0.13.2",
+    "dayjs": "^1.11.10",
+    "epg-parser": "^0.2.0",
     "image-js": "^0.35.5",
     "iptv-playlist-parser": "^0.12.2",
     "tauri-plugin-fs-extra-api": "github:tauri-apps/tauri-plugin-fs-extra#v1",

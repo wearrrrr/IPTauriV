@@ -1,4 +1,5 @@
-import parser from "iptv-playlist-parser";
+import iptvParser from "iptv-playlist-parser";
+import { parseXmltv } from '@iptv/xmltv';
 import { urlRegex } from "./regex";
 import * as path from '@tauri-apps/api/path';
 import * as fs from "@tauri-apps/api/fs"
@@ -21,7 +22,7 @@ const appdata = await path.appDataDir();
 
 async function parse(playlist: string) {
     let playlistText = await fs.readTextFile(`${appdata}playlists/${playlist}.m3u8`);
-    let data = parser.parse(playlistText);
+    let data = iptvParser.parse(playlistText);
     return data;
 }
 
@@ -81,4 +82,14 @@ function verifyParams(params: ParamsObject) {
     return "OK";
 }
 
-export { DlStatus, parse, verifyParams, downloadPlaylist, checkDownloadStatus, deleteFailedDownload };
+async function parseEPGXMLData(data: string) {
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(parseXmltv(data))
+        } catch (error) {
+            reject("Error parsing XML data!" + error);
+        }
+    });
+}
+
+export { DlStatus, parse, verifyParams, downloadPlaylist, checkDownloadStatus, deleteFailedDownload, parseEPGXMLData };
