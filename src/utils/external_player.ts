@@ -1,6 +1,7 @@
 import * as shell from "@tauri-apps/api/shell";
 import { createToast } from "./toast";
 import * as os from "@tauri-apps/api/os";
+import { VLC_PATH } from "./update_player_setting";
 
 export async function openExternalPlayer(player: string | null, url: string, name: string) {
     if (player == null) {
@@ -9,7 +10,6 @@ export async function openExternalPlayer(player: string | null, url: string, nam
             player = 'vlc'; // Default to VLC since it's the most popular player.
         }
     }
-    let titleFlag = '';
     let mpvPlayerFlags = [];
     let vlcPlayerFlags = [];
     let preferredFlags: string[] = [];
@@ -34,9 +34,7 @@ export async function openExternalPlayer(player: string | null, url: string, nam
 
         preferredFlags = mpvPlayerFlags;
     } else if (player == 'vlc') {
-        vlcPlayerFlags.push(url)
-        vlcPlayerFlags.push(`--meta-title=${name}`);
-
+        vlcPlayerFlags.push(`${url}`);
         preferredFlags = vlcPlayerFlags;
     }
     // Get platform name
@@ -50,13 +48,13 @@ export async function openExternalPlayer(player: string | null, url: string, nam
             console.error("macOS is not supported yet!");
             break;
         case "win32":
-            command = new shell.Command("cmd", [`/c ${player} ${url} ${titleFlag}${name}`]);
+            command = new shell.Command("vlc.exe", [`${preferredFlags.join(" ")}`]);
             break;
         default:
             console.error("Unknown platform!");
             break;
     }
-
+    console.log(command)
     let child = await command.spawn();
 
     console.log(`Opening ${url} with ${player}!`)
@@ -71,6 +69,10 @@ export async function openExternalPlayer(player: string | null, url: string, nam
             createToast('Error: 403 Forbidden!', 4000)
             child.kill();
         }
+    });
+
+    command.stderr.on('data', (line) => {
+        console.log(line)
     });
 
     command.addListener('close', (signal) => {

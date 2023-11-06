@@ -1,13 +1,17 @@
 import { createToast } from "./utils/toast";
+import { getPlayerPath, setPlayerPath } from "./utils/update_player_setting";
 
+const player = document.getElementById("player-name") as HTMLInputElement;
 const playerName = document.getElementById("save-player-name") as HTMLButtonElement;
 const networkTimeout = document.getElementById('save-network-timeout') as HTMLButtonElement
 const windowGeometry = document.getElementById("save-window-geometry") as HTMLButtonElement
 const mpvHWDecoding = document.getElementById("save-mpv-hw-decode") as HTMLButtonElement
 
-playerName.addEventListener('click', () => {
-    const player = document.getElementById("player-name") as HTMLInputElement;
-    localStorage.setItem('player', player.value);
+player.value = await getPlayerPath();
+console.log(await getPlayerPath())
+
+playerName.addEventListener('click', async () => {
+    await setPlayerPath(player.value);
     createToast(`Player set to "${player.value}"!`, 2000);
 })
 

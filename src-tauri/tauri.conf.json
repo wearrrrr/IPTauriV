@@ -24,6 +24,11 @@
             "name": "vlc"
           },
           {
+            "cmd": "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe",
+            "args": true,
+            "name": "vlc.exe"
+          },
+          {
             "cmd": "mpv",
             "args": true,
             "name": "mpv"
@@ -31,7 +36,7 @@
           {
             "cmd": "cmd",
             "args": true,
-            "name": "run_player"
+            "name": "cmd"
           }
         ]
       },
