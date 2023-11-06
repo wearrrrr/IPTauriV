@@ -1,7 +1,20 @@
 import * as shell from "@tauri-apps/api/shell";
 import { createToast } from "./toast";
 import * as os from "@tauri-apps/api/os";
+import { ResponseType, getClient } from "@tauri-apps/api/http";
 import { VLC_PATH } from "./update_player_setting";
+
+export async function preflightRequest(url: string) {
+    const httpClient = await getClient();
+    let response = await httpClient.get(url, {
+        responseType: ResponseType.Text
+    });
+    if (response.status == 200) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 export async function openExternalPlayer(player: string | null, url: string, name: string) {
     if (player == null) {
@@ -13,6 +26,7 @@ export async function openExternalPlayer(player: string | null, url: string, nam
     let mpvPlayerFlags = [];
     let vlcPlayerFlags = [];
     let preferredFlags: string[] = [];
+    let platform = await os.platform();
     if (player == 'mpv') {
         mpvPlayerFlags.push(url)
         mpvPlayerFlags.push(`--title=${name}`);
@@ -34,11 +48,16 @@ export async function openExternalPlayer(player: string | null, url: string, nam
 
         preferredFlags = mpvPlayerFlags;
     } else if (player == 'vlc') {
+        if (platform == "win32") {
+            player = "vlc.exe"
+        }
         vlcPlayerFlags.push(`${url}`);
+        vlcPlayerFlags.push(`--meta-title=${name}`);
+        vlcPlayerFlags.push(`--network-caching=5000`);
         preferredFlags = vlcPlayerFlags;
     }
     // Get platform name
-    let platform = await os.platform();
+    
     let command!: shell.Command;
     switch (platform) {
         case "linux":
@@ -48,7 +67,7 @@ export async function openExternalPlayer(player: string | null, url: string, nam
             console.error("macOS is not supported yet!");
             break;
         case "win32":
-            command = new shell.Command("vlc.exe", [`${preferredFlags.join(" ")}`]);
+            command = new shell.Command(player, preferredFlags);
             break;
         default:
             console.error("Unknown platform!");
@@ -69,10 +88,6 @@ export async function openExternalPlayer(player: string | null, url: string, nam
             createToast('Error: 403 Forbidden!', 4000)
             child.kill();
         }
-    });
-
-    command.stderr.on('data', (line) => {
-        console.log(line)
     });
 
     command.addListener('close', (signal) => {
