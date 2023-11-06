@@ -1,6 +1,6 @@
 import { openExternalPlayer, preflightRequest } from "./utils/external_player";
 import { dummyImages, generateAndCacheDummyImage } from "./utils/image";
-import { downloadPlaylist, verifyParams, parse, checkDownloadStatus, DlStatus, deleteFailedDownload, parseEPGXMLData } from "./utils/parser";
+import { downloadPlaylist, verifyParams, parse, checkDownloadStatus, DlStatus, deleteFailedDownload, parseEPGXMLData, checkEPGExists, downloadEPGXML } from "./utils/parser";
 import { ResponseType, getClient } from "@tauri-apps/api/http";
 import { createToast } from "./utils/toast";
 import { appDataDir } from "@tauri-apps/api/path";
@@ -11,7 +11,8 @@ const httpClient = await getClient();
 
 let params = {
     url: URLParams.get('url')!.toString(),
-    name: URLParams.get('name')!.toString()
+    name: URLParams.get('name')!.toString(),
+    epgURL: URLParams.get('epg')
 }
 
 const playlistName = document.getElementById('playlist-name') as HTMLParagraphElement;
@@ -172,13 +173,30 @@ await parse(params.name).then(async (data) => {
     loadItemsInBatch();
 });
 
-console.time("EPG Parse");
-await httpClient.get("https://epg.112114.xyz/pp.xml", { responseType: ResponseType.Text }).then(async (response) => {
-    parseEPGXMLData(response.data as string).then((data) => {
-        console.timeEnd("EPG Parse");
-        console.log(data);
+if (params.epgURL !== null) {
+    await checkEPGExists(params.name).then(async (result) => {
+        if (result == DlStatus.DOWNLOAD_NEEDED) {
+            await downloadEPGXML(params.epgURL as string, params.name).then(async (result) => {
+                if (result == DlStatus.DOWNLOAD_ERROR) {
+                    alert("Failed to download EPG file!")
+                    await deleteFailedDownload(params.name);
+                    window.location.reload();
+                }
+            });
+        }
     })
-});
+} else {
+    console.log("No EPG Found!")
+}
+
+
+// console.time("EPG Parse");
+// await httpClient.get("https://epg.112114.xyz/pp.xml", { responseType: ResponseType.Text }).then(async (response) => {
+//     parseEPGXMLData(response.data as string).then((data) => {
+//         console.timeEnd("EPG Parse");
+//         console.log(data);
+//     })
+// });
 
 
 

@@ -7,7 +7,8 @@ import { download } from "tauri-plugin-upload-api";
 
 interface ParamsObject {
     url: string,
-    name: string
+    name: string,
+    epgUrl?: string
 }
 
 enum DlStatus {
@@ -45,6 +46,28 @@ async function checkDownloadStatus(name: string) {
     } else {
         return DlStatus.DOWNLOAD_NEEDED;
     }
+}
+
+async function checkEPGExists(name: string) {
+    return new Promise(async (resolve, reject) => {
+        if (await fs.exists(`${appdata}epg/${name}.xml`) == true) {
+            resolve(DlStatus.FS_EXISTS)
+        } else {
+            resolve(DlStatus.DOWNLOAD_NEEDED)
+        }
+        reject(DlStatus.UNKNOWN_ERROR)
+    });
+}
+
+async function downloadEPGXML(url: string, name: string) {
+    await fs.createDir(`${appdata}epg/`, {recursive: true})
+    await download(url, `${appdata}epg/${name}.xml`).then(() => {
+        return DlStatus.OK;
+    }).catch((err) => {
+        console.error(err);
+        return DlStatus.DOWNLOAD_ERROR;
+    });
+    return DlStatus.UNKNOWN_ERROR;
 }
 
 async function deleteFailedDownload(name: string) {
@@ -92,4 +115,4 @@ async function parseEPGXMLData(data: string) {
     });
 }
 
-export { DlStatus, parse, verifyParams, downloadPlaylist, checkDownloadStatus, deleteFailedDownload, parseEPGXMLData };
+export { DlStatus, parse, verifyParams, downloadPlaylist, checkDownloadStatus, deleteFailedDownload, parseEPGXMLData, downloadEPGXML, checkEPGExists };

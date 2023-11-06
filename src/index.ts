@@ -12,7 +12,6 @@ const modal = new tingle.modal({
     footer: true,
     stickyFooter: false,
     closeMethods: ['button', 'escape'],
-    closeLabel: "Close",
 });
 
 modal.setContent(`
@@ -24,6 +23,8 @@ modal.setContent(`
         <input placeholder="Enter URL here..." id="playlist-url" class="playlist-url playlist-input" type="text"></input>
         <div class="separator-s"></div>
         <input placeholder="Enter name here..." id="playlist-name" class="playlist-name playlist-input" type="text"></input>
+        <div class="separator-s"></div>
+        <input placeholder="Enter EPG URL (Optional)..." id="playlist-epg" class="playlist-name playlist-input"></input>
         <div class="separator"></div>
         <button id="add-playlist-btn" class="tingle-btn tingle-btn--primary add-playlist-btn">Add</button>
     </div>
@@ -69,7 +70,7 @@ async function getPlaylistContent(): Promise<string> {
     })
 }
 
-async function writeToPlaylistJSON(name: string, url: string) {
+async function writeToPlaylistJSON(name: string, url: string, epg: string | null) {
     let path: string;
     if (await platform() == "win32") {
         path = `${appdata}playlists\\playlists.json`;
@@ -87,7 +88,8 @@ async function writeToPlaylistJSON(name: string, url: string) {
         }
         playlists["playlists"][name] = {
             "name": name,
-            "url": url
+            "url": url,
+            "epg": epg
         };
         await fs.writeTextFile(path, JSON.stringify(playlists));
     } catch (error) {
@@ -116,12 +118,13 @@ if (playlistContent != "") {
             const value = playlist[key];
             let playlistItem = {
                 name: value.name,
-                url: value.url
+                url: value.url,
+                epg: value.epg
             }
             currentPlaylist.innerHTML += `
                 <div class="playlist">
                     <div id=${validatePlaylistName(playlistItem.name)} class="playlist-name">${playlistItem.name}</div>
-                    <button id=${encodeURIComponent(playlistItem.url)} class="play-playlist">View</button>
+                    <button id=${encodeURIComponent(playlistItem.url)} data-epg="${playlistItem.epg}" class="play-playlist">View</button>
                 </div>
             `
 
@@ -132,18 +135,24 @@ if (playlistContent != "") {
 
     Array.from(availablePlaylists).forEach((viewPlaylist) => {
         viewPlaylist.addEventListener('click', () => {
-            window.location.href = `/playlist/?url=${viewPlaylist.id}&name=${viewPlaylist.parentElement!.children[0].innerHTML}`
+            window.location.href = `/playlist/?url=${viewPlaylist.id}&name=${viewPlaylist.parentElement!.children[0].innerHTML}&epg=${(viewPlaylist as HTMLInputElement).dataset.epg}`
         })
     })
 }
 
 document.getElementById("add-playlist-btn")?.addEventListener('click', async () => {
     console.log("Adding...")
-    let url = (<HTMLInputElement>document.getElementById("playlist-url")).value;
-    let name = (<HTMLInputElement>document.getElementById("playlist-name")).value;
+    let url: string = (<HTMLInputElement>document.getElementById("playlist-url")).value;
+    let name: string = (<HTMLInputElement>document.getElementById("playlist-name")).value;
+    let epg: string | null = (<HTMLInputElement>document.getElementById('playlist-epg')).value;
     if (urlRegex.test(url) == false) {
         alert("Please enter a valid URL.");
         return;
+    }
+    if (epg === "") {
+        epg = null
+
+
     }
     if (name === "") {
         alert("Please enter a valid playlist name.");
@@ -155,10 +164,10 @@ document.getElementById("add-playlist-btn")?.addEventListener('click', async () 
             return;
         } else {
             if (await fs.exists(`${appdata}playlists/playlists.json`) == false) {
-                await writeToPlaylistJSON(name, url);
+                await writeToPlaylistJSON(name, url, epg);
             } else {
                 await readFromPlaylistJSON().then(async () => {
-                    await writeToPlaylistJSON(name, url);
+                    await writeToPlaylistJSON(name, url, epg);
                 });
             }
 
