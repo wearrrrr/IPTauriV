@@ -331,7 +331,7 @@ button {
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  height: 100px;
+  height: 130px;
   background-color: rgb(48, 48, 48);
   border-radius: 16px;
   cursor: pointer;
@@ -356,7 +356,7 @@ button {
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   margin: 0;
-  height: 50px;
+  height: 80px;
 }
 
 

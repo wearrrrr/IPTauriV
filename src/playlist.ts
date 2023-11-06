@@ -3,6 +3,8 @@ import { dummyImages, generateAndCacheDummyImage } from "./utils/image";
 import { downloadPlaylist, verifyParams, parse, checkDownloadStatus, DlStatus, deleteFailedDownload, parseEPGXMLData } from "./utils/parser";
 import { ResponseType, getClient } from "@tauri-apps/api/http";
 import { createToast } from "./utils/toast";
+import { appDataDir } from "@tauri-apps/api/path";
+import { readTextFile } from "@tauri-apps/api/fs";
 
 const URLParams = new URLSearchParams(window.location.search)
 const httpClient = await getClient();
@@ -96,12 +98,15 @@ await parse(params.name).then(async (data) => {
                 channel.dataset.url = item.url;
                 channel.dataset.group = item.group.title;
                 channel.onclick = async () => {
-                    createToast(`Opening ${item.name} in ${localStorage.getItem('player') || 'VLC'}...`, 4000);
+                    let playerJSON = await readTextFile(`${await appDataDir()}player.json`);
+                    let player = JSON.parse(playerJSON).player;
+                    console.log(player)
+                    createToast(`Opening ${item.name} in ${player || 'VLC'}...`, 4000);
                     if (!await preflightRequest(item.url)) {
-                        createToast(`Failed to open ${item.name} in ${localStorage.getItem('player') || 'VLC'}!`, 4000);
+                        createToast(`Failed to open ${item.name} in ${player || 'VLC'}!`, 4000);
                         return;
                     }
-                    await openExternalPlayer(localStorage.getItem("player"), item.url, item.name)
+                    await openExternalPlayer(player, item.url, item.name)
                 }
                 if (item.group.title !== '') {
                     checkAndRegisterNewFilter(item.group.title)

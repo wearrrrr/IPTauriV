@@ -1,8 +1,10 @@
 import * as shell from "@tauri-apps/api/shell";
 import { createToast } from "./toast";
 import * as os from "@tauri-apps/api/os";
+import * as fs from "@tauri-apps/api/fs";
 import { ResponseType, getClient } from "@tauri-apps/api/http";
 import { VLC_PATH } from "./update_player_setting";
+import { appDataDir } from "@tauri-apps/api/path";
 
 export async function preflightRequest(url: string) {
     const httpClient = await getClient();
@@ -18,13 +20,10 @@ export async function preflightRequest(url: string) {
 
 export async function openExternalPlayer(player: string | null, url: string, name: string) {
     if (player == null) {
-        player = localStorage.getItem('player');
-        if (player == null) {
-            player = 'vlc'; // Default to VLC since it's the most popular player.
-        }
+        player = 'vlc'; // Default to VLC since it's the most popular player.
     }
-    let mpvPlayerFlags = [];
-    let vlcPlayerFlags = [];
+    let mpvPlayerFlags: string[] = [];
+    let vlcPlayerFlags: string[] = [];
     let preferredFlags: string[] = [];
     let platform = await os.platform();
     if (player == 'mpv') {
