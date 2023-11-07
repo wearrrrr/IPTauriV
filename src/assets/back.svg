@@ -1,13 +1,9 @@
-<?xml version="1.0"?>
-<svg width="800px" height="800px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-    <style>
-        .left-arrow { 
-            fill: #fff;
-        }
-    </style>
-    </defs>
-    <g data-name="arrow left" id="arrow_left">
-        <path class="left-arrow" d="M22,29.73a1,1,0,0,1-.71-.29L9.93,18.12a3,3,0,0,1,0-4.24L21.24,2.56A1,1,0,1,1,22.66,4L11.34,15.29a1,1,0,0,0,0,1.42L22.66,28a1,1,0,0,1,0,1.42A1,1,0,0,1,22,29.73Z" />
+<?xml version="1.0" encoding="utf-8"?>
+<svg fill="#fff" width="800px" height="800px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <g data-name="Layer 2">
+        <g data-name="arrow-ios-back">
+            <rect width="24" height="24" transform="rotate(90 12 12)" opacity="0" />
+            <path d="M13.83 19a1 1 0 0 1-.78-.37l-4.83-6a1 1 0 0 1 0-1.27l5-6a1 1 0 0 1 1.54 1.28L10.29 12l4.32 5.36a1 1 0 0 1-.78 1.64z" />
+        </g>
     </g>
 </svg>

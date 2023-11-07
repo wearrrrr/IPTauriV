@@ -41,7 +41,8 @@
 
 #playlist-header {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-around;
   padding: 1em;
 }
 
@@ -50,11 +51,11 @@
   max-height: 35px;
 }
 
-.back-button > img:hover {
+.back-button > img:hover, .epg-button > img:hover {
   border-color: #eb4cc9;
 }
 
-.back-button > img {
+.back-button > img, .epg-button > img {
   transition: 250ms ease-in-out;
   border-radius: 25%;
 }
@@ -383,4 +384,30 @@ button {
   background-color: #333;
   border: 1px solid #333;
   cursor: pointer;
+}
+
+.epg-image, .back-image {
+  width: 28px;
+  height: 28px;
+}
+
+.back-button, .epg-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  padding: 3px;
+  border: 1px solid #333;
+  border-radius: 12px;
+  cursor: pointer;
+  background-color: #333;
+  transition: 250ms ease-in-out;
+}
+
+.epg-text {
+  padding-left: 5px;
+}
+
+.epg-button:hover, .back-button:hover {
+  border: 1px solid #eb4cc9;
 }

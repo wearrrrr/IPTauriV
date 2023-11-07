@@ -70,6 +70,8 @@ async function downloadEPGXML(url: string, name: string) {
     return DlStatus.UNKNOWN_ERROR;
 }
 
+
+
 async function deleteFailedDownload(name: string) {
     await fs.removeFile(`${appdata}playlists/${name}.m3u8`);
 }

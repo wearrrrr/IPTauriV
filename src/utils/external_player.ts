@@ -1,10 +1,7 @@
 import * as shell from "@tauri-apps/api/shell";
 import { createToast } from "./toast";
 import * as os from "@tauri-apps/api/os";
-import * as fs from "@tauri-apps/api/fs";
 import { ResponseType, getClient } from "@tauri-apps/api/http";
-import { VLC_PATH } from "./update_player_setting";
-import { appDataDir } from "@tauri-apps/api/path";
 
 export async function preflightRequest(url: string) {
     const httpClient = await getClient();

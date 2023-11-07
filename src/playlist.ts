@@ -5,6 +5,8 @@ import { ResponseType, getClient } from "@tauri-apps/api/http";
 import { createToast } from "./utils/toast";
 import { appDataDir } from "@tauri-apps/api/path";
 import { readTextFile } from "@tauri-apps/api/fs";
+import { fs } from "@tauri-apps/api";
+import { EPGObject } from "./utils/types";
 
 const URLParams = new URLSearchParams(window.location.search)
 const httpClient = await getClient();
@@ -173,20 +175,28 @@ await parse(params.name).then(async (data) => {
     loadItemsInBatch();
 });
 
-if (params.epgURL !== null) {
-    await checkEPGExists(params.name).then(async (result) => {
-        if (result == DlStatus.DOWNLOAD_NEEDED) {
-            await downloadEPGXML(params.epgURL as string, params.name).then(async (result) => {
-                if (result == DlStatus.DOWNLOAD_ERROR) {
-                    alert("Failed to download EPG file!")
-                    await deleteFailedDownload(params.name);
-                    window.location.reload();
-                }
-            });
-        }
-    })
-} else {
-    console.log("No EPG Found!")
+async function loadEPG() {
+    if (params.epgURL !== null) {
+        await checkEPGExists(params.name).then(async (result) => {
+            if (result == DlStatus.DOWNLOAD_NEEDED) {
+                await downloadEPGXML(params.epgURL as string, params.name).then(async (result) => {
+                    if (result == DlStatus.DOWNLOAD_ERROR) {
+                        alert("Failed to download EPG file!")
+                        await deleteFailedDownload(params.name);
+                        window.location.reload();
+                    }
+                })
+            }
+            console.time("EPG Parse")
+            fs.readTextFile(`${await appDataDir()}epg/${params.name}.xml`).then(async (data) => {
+                let dataJSON: EPGObject = (await parseEPGXMLData(data) as EPGObject);
+                console.log(dataJSON.channels); 
+                console.timeEnd("EPG Parse")
+            })
+        })
+    } else {
+        console.log("No EPG Found!")
+    }
 }
 
 

@@ -5,6 +5,14 @@ interface PlaylistObject {
   };
 }
 
+interface EPGObject {
+  [Object: string]: {
+    channels: Array<Object>;
+    programmes: Array<Object>;
+    generatorInfoName: string;
+  }
+}
+
 type validPlayers = "mpv" | "vlc";
 
 type mpvHWDecodingTypes =
@@ -38,4 +46,4 @@ type mpvHWDecodingTypes =
   | "crystalhd"
   | "rkmpp";
 
-export { PlaylistObject, validPlayers, mpvHWDecodingTypes };
+export { PlaylistObject, validPlayers, mpvHWDecodingTypes, EPGObject };
