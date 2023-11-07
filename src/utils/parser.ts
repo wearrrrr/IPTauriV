@@ -4,6 +4,7 @@ import { urlRegex } from "./regex";
 import * as path from '@tauri-apps/api/path';
 import * as fs from "@tauri-apps/api/fs"
 import { download } from "tauri-plugin-upload-api";
+import { platform } from "@tauri-apps/api/os";
 
 interface ParamsObject {
     url: string,
@@ -16,7 +17,8 @@ enum DlStatus {
     FS_EXISTS,
     DOWNLOAD_ERROR,
     UNKNOWN_ERROR,
-    DOWNLOAD_NEEDED
+    DOWNLOAD_NEEDED,
+    URL_MISMATCH
 }
 
 const appdata = await path.appDataDir();
@@ -40,12 +42,27 @@ function formatBytes(bytes: number, decimals = 2) {
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i] || '???'}`
 }
 
-async function checkDownloadStatus(name: string) {
-    if (await fs.exists(`${appdata}playlists/${name}.m3u8`) == true) {
-        return DlStatus.FS_EXISTS;
+async function checkDownloadStatus(name: string, url: string) {
+
+    let status = DlStatus.UNKNOWN_ERROR;
+
+    await getSavedFiles().then(async (savedFiles) => {
+        if (savedFiles[name].name == name) {
+            if (savedFiles[name].url !== url) {
+                console.log("URLs don't match, deleting old file and downloading new one!");
+                await deleteFailedDownload(name);
+                status = DlStatus.URL_MISMATCH;
+            }
+        }
+    });
+
+    if (await fs.exists(`${appdata}playlists\\${name}.m3u8`) == true) {
+        status = DlStatus.FS_EXISTS;
     } else {
-        return DlStatus.DOWNLOAD_NEEDED;
+        status = DlStatus.DOWNLOAD_NEEDED;
     }
+
+    return status;
 }
 
 async function checkEPGExists(name: string) {
@@ -73,18 +90,27 @@ async function downloadEPGXML(url: string, name: string) {
 
 
 async function deleteFailedDownload(name: string) {
-    await fs.removeFile(`${appdata}playlists/${name}.m3u8`);
+    if (await platform() == "win32") {
+        await fs.removeFile(`${appdata}playlists\\${name}.m3u8`);
+    } else {
+        await fs.removeFile(`${appdata}playlists/${name}.m3u8`);
+    }
 }
 
-async function downloadPlaylist(url: string, name: string, downloadProgressContainer: HTMLDivElement, downloadProgressDisplay: HTMLSpanElement) {
+async function downloadPlaylist(url: string, name: string, epg: string | null, downloadProgressContainer: HTMLDivElement, downloadProgressDisplay: HTMLSpanElement) {
+    if (epg == null) {
+        epg = "N/A"
+    }
     let totalBytesDownloaded = 0;
     downloadProgressContainer.classList.add('active');
+
     await download(url, `${appdata}playlists/${name}.m3u8`, (progress: number, total: number) => {
         totalBytesDownloaded += progress;
         downloadProgressDisplay.textContent = `${formatBytes(totalBytesDownloaded)} / ${formatBytes(total)}`;
-    }).then(() => {
+    }).then(async () => {
         downloadProgressDisplay.textContent = 'Download complete!';
         downloadProgressContainer.classList.remove('active');
+        updateSavedFilesList(url, name, epg!);
         return DlStatus.OK
     }).catch((err) => {
         console.error(err);
@@ -115,6 +141,37 @@ async function parseEPGXMLData(data: string) {
             reject("Error parsing XML data!" + error);
         }
     });
+}
+
+type PlaylistData = {
+    name: string,
+    url: string,
+    epg: string
+}
+
+type SavedFiles = {
+    [name: string]: PlaylistData
+}
+
+async function getSavedFiles(): Promise<SavedFiles> {
+    if (!await fs.exists(`${appdata}cache.json`)) {
+        await fs.writeTextFile(`${appdata}cache.json`, "{}");
+        return {};
+    } else {
+        let savedFiles = await fs.readTextFile(`${appdata}cache.json`);
+        return JSON.parse(savedFiles);
+    }
+}
+
+async function updateSavedFilesList(url: string, name: string, epg: string) {
+    let newPlaylistData: PlaylistData = {
+        name: name,
+        url: url,
+        epg: epg,
+    }
+    let savedFiles = await getSavedFiles();
+    savedFiles[name] = newPlaylistData;
+    await fs.writeTextFile(`${appdata}cache.json`, JSON.stringify(savedFiles));
 }
 
 export { DlStatus, parse, verifyParams, downloadPlaylist, checkDownloadStatus, deleteFailedDownload, parseEPGXMLData, downloadEPGXML, checkEPGExists };

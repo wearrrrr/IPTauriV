@@ -66,10 +66,13 @@ try {
 playlistName.textContent = params.name;
 
 
-if (await checkDownloadStatus(params.name) != DlStatus.FS_EXISTS) {
-    await downloadPlaylist(params.url, params.name, playlistDownloadContainer, playlistDownloadProgress).then(async (result) => {
+if (await checkDownloadStatus(params.name, params.url) != DlStatus.FS_EXISTS) {
+    await downloadPlaylist(params.url, params.name, params.epgURL, playlistDownloadContainer, playlistDownloadProgress).then(async (result) => {
         if (result == DlStatus.DOWNLOAD_ERROR) {
             await deleteFailedDownload(params.name);
+            window.location.reload();
+        }
+        if (result == DlStatus.URL_MISMATCH) {
             window.location.reload();
         }
     });

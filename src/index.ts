@@ -195,17 +195,14 @@ function openEditModal(playlistName: string, playlistURL: string = "", playlistE
         } else {
             // Overwrite playlist item we are editing with new data
             let playlists = JSON.parse(await getPlaylistContent());
-            console.log(playlists["playlists"][name])
+            delete playlists["playlists"][playlistName];
             playlists["playlists"][name] = {
                 "name": name,
                 "url": url,
                 "epg": epg
             };
-            if (name !== playlists["playlists"][name].name) {
-                delete playlists["playlists"][name];
-            }
             await fs.writeTextFile(`${appdata}playlists/playlists.json`, JSON.stringify(playlists));
-            editModal.close();
+
             window.location.reload();
         }
     })
