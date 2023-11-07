@@ -39,6 +39,8 @@
   grid-gap: 10px;
 }
 
+
+
 #playlist-header {
   display: flex;
   flex-direction: row;
@@ -252,7 +254,7 @@ button {
   width: 100%;
 }
 
-.add-new-playlist-container {
+.add-new-playlist-container, .edit-playlist-container {
   width: 90%;
   margin: 0 auto;
 }
@@ -320,6 +322,25 @@ button {
   padding-inline: 30px;
   background-color: rgb(48, 48, 48);
   border-radius: 16px;
+}
+
+.playlist-name {
+  position: relative;
+  top: -15%;
+}
+
+.edit-playlist {
+  width: 5px;
+  height: 5px;  
+  position: relative;
+  left: 100%;
+  top: -10%;
+  cursor: pointer;
+}
+
+.edit-playlist > img {
+  width: 28px;
+  height: 28px;
 }
 
 .channels-container {
