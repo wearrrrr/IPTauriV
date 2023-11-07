@@ -1,7 +1,7 @@
 import { openExternalPlayer, preflightRequest } from "./utils/external_player";
 import { dummyImages, generateAndCacheDummyImage } from "./utils/image";
 import { downloadPlaylist, verifyParams, parse, checkDownloadStatus, DlStatus, deleteFailedDownload, parseEPGXMLData, checkEPGExists, downloadEPGXML } from "./utils/parser";
-import { ResponseType, getClient } from "@tauri-apps/api/http";
+import { getClient } from "@tauri-apps/api/http";
 import { createToast } from "./utils/toast";
 import { appDataDir } from "@tauri-apps/api/path";
 import { readTextFile } from "@tauri-apps/api/fs";
@@ -10,6 +10,7 @@ import { EPGObject } from "./utils/types";
 
 const URLParams = new URLSearchParams(window.location.search)
 const httpClient = await getClient();
+httpClient;
 
 let params = {
     url: URLParams.get('url')!.toString(),
@@ -198,6 +199,8 @@ async function loadEPG() {
         console.log("No EPG Found!")
     }
 }
+
+loadEPG;
 
 
 // console.time("EPG Parse");

@@ -1,9 +1,7 @@
 import * as fs from "@tauri-apps/api/fs";
-import * as os from "@tauri-apps/api/os";
 import * as path from "@tauri-apps/api/path";
 
 const VLC_PATH = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe";
-let platform = await os.platform();
 let appdata = await path.appDataDir();
 
 console.log(appdata)

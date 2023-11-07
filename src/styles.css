@@ -51,10 +51,6 @@
   max-height: 35px;
 }
 
-.back-button > img:hover, .epg-button > img:hover {
-  border-color: #eb4cc9;
-}
-
 .back-button > img, .epg-button > img {
   transition: 250ms ease-in-out;
   border-radius: 25%;
@@ -113,6 +109,18 @@
 .settings-container {
   margin-top: 20px;
 }
+
+.settings-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+}
+
+.settings-input {
+  width: 80%;
+}
+
 
 .settings-label {
   display: block;
