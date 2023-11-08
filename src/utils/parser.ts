@@ -43,10 +43,11 @@ function formatBytes(bytes: number, decimals = 2) {
 }
 
 async function checkDownloadStatus(name: string, url: string) {
-
     let status = DlStatus.UNKNOWN_ERROR;
-
     await getSavedFiles().then(async (savedFiles) => {
+        if (JSON.stringify(savedFiles) == '{}') {
+            return
+        }
         if (savedFiles[name].name == name) {
             if (savedFiles[name].url !== url) {
                 console.log("URLs don't match, deleting old file and downloading new one!");
@@ -56,7 +57,14 @@ async function checkDownloadStatus(name: string, url: string) {
         }
     });
 
-    if (await fs.exists(`${appdata}playlists\\${name}.m3u8`) == true) {
+    let path: string;
+    if (await platform() == "win32") {
+        path = `${appdata}playlists\\${name}.m3u8`;
+    } else {
+        path = `${appdata}playlists/${name}.m3u8`;
+    }
+
+    if (await fs.exists(path) == true) {
         status = DlStatus.FS_EXISTS;
     } else {
         status = DlStatus.DOWNLOAD_NEEDED;
