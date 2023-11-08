@@ -1,7 +1,7 @@
 import * as shell from "@tauri-apps/api/shell";
 import { createToast } from "./toast";
 import * as os from "@tauri-apps/api/os";
-import { ResponseType, getClient } from "@tauri-apps/api/http";
+import { getClient, ResponseType } from "@tauri-apps/api/http";
 
 export async function preflightRequest(url: string) {
     const httpClient = await getClient();
@@ -17,12 +17,15 @@ export async function preflightRequest(url: string) {
 
 export async function openExternalPlayer(player: string | null, url: string, name: string) {
     if (player == null) {
-        player = 'vlc'; // Default to VLC since it's the most popular player.
+        player = localStorage.getItem('player');
+        if (player == null) {
+            player = 'vlc'; // Default to VLC since it's the most popular player.
+        }
     }
-    let mpvPlayerFlags: string[] = [];
-    let vlcPlayerFlags: string[] = [];
+    let titleFlag = '';
+    let mpvPlayerFlags = [];
+    let vlcPlayerFlags = [];
     let preferredFlags: string[] = [];
-    let platform = await os.platform();
     if (player == 'mpv') {
         mpvPlayerFlags.push(url)
         mpvPlayerFlags.push(`--title=${name}`);
@@ -44,16 +47,13 @@ export async function openExternalPlayer(player: string | null, url: string, nam
 
         preferredFlags = mpvPlayerFlags;
     } else if (player == 'vlc') {
-        if (platform == "win32") {
-            player = "vlc.exe"
-        }
-        vlcPlayerFlags.push(`${url}`);
+        vlcPlayerFlags.push(url)
         vlcPlayerFlags.push(`--meta-title=${name}`);
-        vlcPlayerFlags.push(`--network-caching=5000`);
+
         preferredFlags = vlcPlayerFlags;
     }
     // Get platform name
-    
+    let platform = await os.platform();
     let command!: shell.Command;
     switch (platform) {
         case "linux":
@@ -63,13 +63,13 @@ export async function openExternalPlayer(player: string | null, url: string, nam
             console.error("macOS is not supported yet!");
             break;
         case "win32":
-            command = new shell.Command(player, preferredFlags);
+            command = new shell.Command("cmd", [`/c ${player} ${url} ${titleFlag}${name}`]);
             break;
         default:
             console.error("Unknown platform!");
             break;
     }
-    console.log(command)
+
     let child = await command.spawn();
 
     console.log(`Opening ${url} with ${player}!`)
