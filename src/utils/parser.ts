@@ -48,7 +48,7 @@ async function checkDownloadStatus(name: string, url: string) {
         if (JSON.stringify(savedFiles) == '{}') {
             return
         }
-        if (savedFiles[name].name == name) {
+        if (savedFiles[name] !== undefined && savedFiles[name].name == name) {
             if (savedFiles[name].url !== url) {
                 console.log("URLs don't match, deleting old file and downloading new one!");
                 await deleteFailedDownload(name);

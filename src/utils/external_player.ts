@@ -8,6 +8,7 @@ export async function preflightRequest(url: string) {
     let response = await httpClient.get(url, {
         responseType: ResponseType.Text
     });
+    console.log(response);
     if (response.status == 200) {
         return true;
     } else {

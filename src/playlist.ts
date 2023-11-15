@@ -106,7 +106,6 @@ await parse(params.name).then(async (data) => {
                 channel.onclick = async () => {
                     let playerJSON = await readTextFile(`${await appDataDir()}player.json`);
                     let player = JSON.parse(playerJSON).player;
-                    console.log(player)
                     createToast(`Opening ${item.name} in ${player || 'VLC'}...`, 4000);
                     if (!await preflightRequest(item.url)) {
                         createToast(`Failed to open ${item.name} in ${player || 'VLC'}!`, 4000);
@@ -193,7 +192,7 @@ async function loadEPG() {
             console.time("EPG Parse")
             fs.readTextFile(`${await appDataDir()}epg/${params.name}.xml`).then(async (data) => {
                 let dataJSON: EPGObject = (await parseEPGXMLData(data) as EPGObject);
-                console.log(dataJSON.channels); 
+                (dataJSON.channels); 
                 console.timeEnd("EPG Parse")
             })
         })

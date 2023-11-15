@@ -118,10 +118,20 @@ let playlistContent = await getPlaylistContent();
 
 if (playlistContent != "") {
     let playlists = JSON.parse(await getPlaylistContent());
+    let playlistsArray = [];
     for (const playlistKey in playlists) {
         const playlist = playlists[playlistKey];
         for (const key in playlist) {
-            const value = playlist[key];
+            playlistsArray.push(playlist[key])
+        }
+        playlistsArray.sort( function( a, b ) {
+            a = a.name.toLowerCase();
+            b = b.name.toLowerCase();
+        
+            return a < b ? -1 : a > b ? 1 : 0;
+        });
+        for (const key in playlistsArray) {
+            const value = playlistsArray[key]
             let playlistItem = {
                 name: value.name,
                 url: value.url,
@@ -134,9 +144,6 @@ if (playlistContent != "") {
                     <button id=${encodeURIComponent(playlistItem.url)} data-epg="${playlistItem.epg}" class="play-playlist">View</button>
                 </div>
             `
-
-            
-
         }
     }
     let availablePlaylists = document.getElementsByClassName('play-playlist')
@@ -152,13 +159,15 @@ if (playlistContent != "") {
     Array.from(editPlaylist).forEach((editPlaylist) => {
         // Cast to HTMLDivElement to access the dataset
         editPlaylist.addEventListener('click', () => {
-            openEditModal((editPlaylist as HTMLDivElement).dataset.playlist!, (editPlaylist.parentElement!.children[2] as HTMLButtonElement).id, (editPlaylist.parentElement!.children[2] as HTMLButtonElement).dataset.epg);
+            openEditModal((editPlaylist as HTMLDivElement).dataset.playlist!, (editPlaylist.parentElement!.children[2] as HTMLButtonElement).id, (editPlaylist.parentElement!.children[2] as HTMLButtonElement).dataset.epg!);
         })
     })
 }
 
-function openEditModal(playlistName: string, playlistURL: string = "", playlistEPG: string | null = null) {
-    if (playlistEPG == null) {
+function openEditModal(playlistName: string, playlistURL: string = "", playlistEPG: string) {
+    console.log(playlistEPG)
+    if (playlistEPG === null) {
+        console.log("Here")
         playlistEPG = "";
     }
     editModal.setContent(`
@@ -170,7 +179,7 @@ function openEditModal(playlistName: string, playlistURL: string = "", playlistE
         <div class="separator-s"></div>
         <input placeholder="Enter name here..." id="edit-playlist-name" class="playlist-name playlist-input" value=${playlistName} type="text"></input>
         <div class="separator-s"></div>
-        <input placeholder="Enter EPG URL (Optional)..." id="edit-playlist-epg" class="playlist-name playlist-input"></input>
+        <input placeholder="Enter EPG URL (Optional)..." id="edit-playlist-epg" class="playlist-name playlist-input" value=${playlistEPG}></input>
         <div class="separator"></div>
         <button id="edit-playlist-btn" class="tingle-btn tingle-btn--primary add-playlist-btn">Edit</button>
         <div class="separator-s"></div>
@@ -181,13 +190,10 @@ function openEditModal(playlistName: string, playlistURL: string = "", playlistE
     document.getElementById('edit-playlist-btn')!.addEventListener('click', async () => {
         let url: string = (<HTMLInputElement>document.getElementById("edit-playlist-url")).value;
         let name: string = (<HTMLInputElement>document.getElementById("edit-playlist-name")).value;
-        let epg: string | null = (<HTMLInputElement>document.getElementById('edit-playlist-epg')).value;
+        let epg: string = (<HTMLInputElement>document.getElementById('edit-playlist-epg')).value;
         if (urlRegex.test(url) == false) {
             alert("Please enter a valid URL.");
             return;
-        }
-        if (epg === "") {
-            epg = null
         }
         if (name == "") {
             alert("Please enter a valid playlist name.");
