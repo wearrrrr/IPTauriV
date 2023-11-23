@@ -108,6 +108,28 @@
   grid-gap: 15px;
 }
 
+.settings-bottom-container {
+  width: 90%;
+  margin: 0 auto;
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.settings-button {
+  width: 100%;
+  padding: 0.5rem;
+}
+
+.button-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
 .settings-container {
   margin-top: 20px;
 }

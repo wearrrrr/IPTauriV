@@ -4,7 +4,7 @@ import { downloadPlaylist, verifyParams, parse, checkDownloadStatus, DlStatus, d
 import { getClient } from "@tauri-apps/api/http";
 import { createToast } from "./utils/toast";
 import { appDataDir } from "@tauri-apps/api/path";
-import { readTextFile } from "@tauri-apps/api/fs";
+import { readTextFile, writeTextFile } from "@tauri-apps/api/fs";
 import { fs } from "@tauri-apps/api";
 import { EPGObject } from "./utils/types";
 
@@ -71,9 +71,9 @@ if (await checkDownloadStatus(params.name, params.url) != DlStatus.FS_EXISTS) {
             await deleteFailedDownload(params.name);
             window.location.reload();
         }
-        // if (result == DlStatus.URL_MISMATCH) {
-        //     window.location.reload();
-        // }
+        if (result == DlStatus.URL_MISMATCH) {
+            window.location.reload();
+        }
     });
 }
 await parse(params.name).then(async (data) => {
@@ -104,6 +104,9 @@ await parse(params.name).then(async (data) => {
                 channel.dataset.url = item.url;
                 channel.dataset.group = item.group.title;
                 channel.onclick = async () => {
+                    if (await fs.exists(`${await appDataDir()}player.json`) == false) {
+                        await writeTextFile(`${await appDataDir()}player.json`, JSON.stringify({player: "vlc"}));
+                    }
                     let playerJSON = await readTextFile(`${await appDataDir()}player.json`);
                     let player = JSON.parse(playerJSON).player;
                     createToast(`Opening ${item.name} in ${player || 'VLC'}...`, 4000);

@@ -8,7 +8,11 @@ export async function preflightRequest(url: string) {
     let response = await httpClient.get(url, {
         responseType: ResponseType.Text
     });
+<<<<<<< HEAD
     console.log(response);
+=======
+    console.log(response)
+>>>>>>> 6ac2e4a (Add buttons to delete and redownload all playlists)
     if (response.status == 200) {
         return true;
     } else {
