@@ -5,5 +5,4 @@ function validatePlaylistName(playlistName: string) {
     return playlistName.match(/^[A-Za-z][A-Za-z0-9\-_:.]*$/) ? playlistName : playlistName.replace(/[^A-Za-z0-9\-_:.]/g, '_');
 }
 
-
 export { urlRegex, validatePlaylistName }

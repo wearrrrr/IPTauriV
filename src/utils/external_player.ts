@@ -8,11 +8,7 @@ export async function preflightRequest(url: string) {
     let response = await httpClient.get(url, {
         responseType: ResponseType.Text
     });
-<<<<<<< HEAD
     console.log(response);
-=======
-    console.log(response)
->>>>>>> 6ac2e4a (Add buttons to delete and redownload all playlists)
     if (response.status == 200) {
         return true;
     } else {
@@ -22,10 +18,7 @@ export async function preflightRequest(url: string) {
 
 export async function openExternalPlayer(player: string | null, url: string, name: string) {
     if (player == null) {
-        player = localStorage.getItem('player');
-        if (player == null) {
-            player = 'vlc'; // Default to VLC since it's the most popular player.
-        }
+        player = 'vlc';
     }
     let titleFlag = '';
     let mpvPlayerFlags = [];

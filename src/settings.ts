@@ -3,6 +3,7 @@ import * as fs from "@tauri-apps/api/fs";
 import * as path from "@tauri-apps/api/path";
 import { getPlayerPath, setPlayerPath } from "./utils/update_player_setting";
 import * as os from "@tauri-apps/api/os";
+import { mpvHWDecodingTypes } from "./utils/types";
 
 const player = document.getElementById("player-name") as HTMLInputElement;
 const playerName = document.getElementById("save-player-name") as HTMLButtonElement;
@@ -34,6 +35,11 @@ windowGeometry.addEventListener("click", () => {
 
 mpvHWDecoding.addEventListener("click", () => {
     const mpvHWDecodingValue = document.getElementById("mpv-hw-decode") as HTMLInputElement
+    // Check if the value is a valid MPV Hardware Decoding value
+    if (!mpvHWDecodingTypes.includes(mpvHWDecodingValue.value)) {
+        createToast("Invalid MPV Hardware Decoding value!", 2000)
+        return;
+    }
     localStorage.setItem("hwdec", mpvHWDecodingValue.value)
     createToast(`MPV Hardware Decoding set to "${mpvHWDecodingValue.value}"!`, 2000)
 })
@@ -57,10 +63,9 @@ async function checkPlaylistLength() {
     }
     let playlistJSON = await fs.readTextFile(await path.appDataDir() + "/playlists/playlists.json");
     let playlists = JSON.parse(playlistJSON);
-    // Playlist is an object, so we can't use .length on it
-    // So we have to use a for loop to get the length
     let playlistLength = 0;
     for (let playlist in playlists["playlists"]) {
+        playlist; // This is to get rid of the TS error, thanks TS!
         playlistLength++;
     }
     console.log(playlistLength)
