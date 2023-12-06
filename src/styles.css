@@ -370,10 +370,8 @@ button {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   padding: 0;
   margin: 0;
-
   grid-template-rows: auto auto auto auto auto;
   grid-gap: 10px;
-  overflow-y: scroll;
   padding-bottom: 35px;
 }
 
@@ -387,6 +385,47 @@ button {
   background-color: rgb(48, 48, 48);
   border-radius: 16px;
   cursor: pointer;
+}
+
+#epg-group {
+  top: 50%;
+  bottom:0;
+  position:fixed;
+  overflow-y:scroll;
+  overflow-x:hidden;
+}
+
+.epg-channel {
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  background-color: #ccc;
+  display: flex;
+  overflow: hidden;
+  width: 200%;
+  gap: 20px;
+}
+
+.epg-channel p {
+  margin: 5px 0;
+}
+
+.program {
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  background-color: #ccc;
+}
+
+.program p {
+  margin: 5px 0;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background-color: #ddd;
+  margin: 10px 0;
 }
 
 @keyframes fade-in {

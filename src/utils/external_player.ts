@@ -8,7 +8,6 @@ export async function preflightRequest(url: string) {
     let response = await httpClient.get(url, {
         responseType: ResponseType.Text
     });
-    console.log(response);
     if (response.status == 200) {
         return true;
     } else {
@@ -50,7 +49,11 @@ export async function openExternalPlayer(player: string | null, url: string, nam
 
         preferredFlags = vlcPlayerFlags;
     }
+    if (await os.platform() == "win32" && player == "vlc") {
+        player = "vlc.exe";
+    }
     // Get platform name
+    console.log(preferredFlags)
     let platform = await os.platform();
     let command!: shell.Command;
     switch (platform) {
@@ -61,7 +64,7 @@ export async function openExternalPlayer(player: string | null, url: string, nam
             console.error("macOS is not supported yet!");
             break;
         case "win32":
-            command = new shell.Command("cmd", [`/c ${player} ${url} ${titleFlag}${name}`]);
+            command = new shell.Command(player, preferredFlags);
             break;
         default:
             console.error("Unknown platform!");
