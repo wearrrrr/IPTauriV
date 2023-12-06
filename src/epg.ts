@@ -126,6 +126,45 @@ async function loadEPG() {
 //     }
 // }
 
+function createHalfHourTimeIncrements() {
+    // Create half hour increments for the next 48 hours based on the current time rounded down to the nearest half hour
+    const now = new Date();
+    const nowRoundedDown = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - (now.getMinutes() % 30));
+    const timeIncrements = [];
+    for (let i = 0; i < 48; i++) {
+        const timeIncrement = new Date(nowRoundedDown.getTime() + (i * 30 * 60 * 1000));
+        timeIncrements.push(timeIncrement);
+    }
+    // Create the time increment elements
+    const epgTimeIncrements = document.getElementById('epg-time-increments');
+    if (epgTimeIncrements) {
+        timeIncrements.forEach((timeIncrement) => {
+            const timeIncrementElement = document.createElement('div');
+            timeIncrementElement.classList.add('epg-time-increment');
+            timeIncrementElement.textContent = timeIncrement.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            epgTimeIncrements.appendChild(timeIncrementElement);
+        });
+    } else {
+        console.error("Target element 'epg-time-increments' not found.");
+    }
+}
+createHalfHourTimeIncrements();
+
+const timeIndicator = document.getElementById('time-indicator');
+// Update the time indicator every 10 seconds
+setInterval(() => {
+    const now = new Date();
+    const nowRoundedDown = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - (now.getMinutes() % 30));
+    const timeIncrements = document.getElementsByClassName('epg-time-increment');
+    if (timeIncrements) {
+        const timeIncrementIndex = Math.floor((now.getTime() - nowRoundedDown.getTime()) / (30 * 60 * 1000));
+        const timeIncrementElement = timeIncrements[timeIncrementIndex] as HTMLElement;
+        if (timeIncrementElement) {
+            timeIndicator!.style.top = `${timeIncrementElement.offsetTop}px`;
+        }
+    }
+}, 10000);
+
 function displayEPG(xmltv: Xmltv, batchSize: number = 10): void {
     console.time("EPG Display");
     const epgGroup = document.getElementById('epg-group');
@@ -164,33 +203,31 @@ function displayEPG(xmltv: Xmltv, batchSize: number = 10): void {
                 }
 
                 const programsForChannel = xmltv.programmes!.filter((program) => program.channel === channel.id);
-
                 programsForChannel.forEach((program) => {
-                const programElement = document.createElement('div');
-                programElement.classList.add('epg-program');
+                    const programElement = document.createElement('div');
+                    programElement.classList.add('epg-program');
 
-                const titleElement = document.createElement('p');
-                program.title.forEach((title) => {
-                    const titleTextElement = document.createElement('span');
-                    titleTextElement.textContent = `${title._value}`;
-                    titleElement.appendChild(titleTextElement);
-                });
-                programElement.appendChild(titleElement);
+                    const titleElement = document.createElement('p');
+                    program.title.forEach((title) => {
+                        const titleTextElement = document.createElement('span');
+                        titleTextElement.textContent = `${title._value}`.replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ");
+                        titleElement.appendChild(titleTextElement);
+                    });
+                    programElement.appendChild(titleElement);
 
-                // if (program.desc) {
-                //     const descriptionElement = document.createElement('p');
-                //     descriptionElement.textContent = 'Description:';
-                //     program.desc.forEach((description) => {
-                //         const descriptionTextElement = document.createElement('span');
-                //         descriptionTextElement.textContent = `${description.lang}: ${description._value}`;
-                //         descriptionElement.appendChild(descriptionTextElement);
-                //     });
-                //     programElement.appendChild(descriptionElement);
-                // }
+                    // Calculate the width of the program based on its duration
+                    const programDuration = (new Date(program.stop!)).getTime() - (new Date(program.start)).getTime();
+                    const pixelsPerMinute = 7; // Adjust as needed
+                    const programWidth = (programDuration / (82 * 1000)) * pixelsPerMinute;
+                    programElement.style.maxWidth = `${programWidth}px`;
+                    programElement.style.minWidth = `${programWidth}px`;
 
-                const timeElement = document.createElement('p');
-                timeElement.textContent = `Time: ${program.start} - ${program.stop}`;
-                programElement.appendChild(timeElement);
+                    // Check if the program time is in the past, skip if so
+                    const programTime = new Date(program.start);
+                    const now = new Date();
+                    if (programTime < now) {
+                        return;
+                    }
 
                     channelElement.appendChild(programElement);
                 });

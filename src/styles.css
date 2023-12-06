@@ -387,12 +387,27 @@ button {
   cursor: pointer;
 }
 
+#epg-time-increments {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 100px;
+  position: fixed;
+  top: 45%;
+  left: 11.5rem;
+}
+#epg-time-increments > .epg-time-increment {
+  width: 72px;
+}
+
 #epg-group {
   top: 50%;
   bottom:0;
   position:fixed;
   overflow-y:scroll;
   overflow-x:hidden;
+  background-color: black;
 }
 
 .epg-channel {
@@ -404,10 +419,36 @@ button {
   overflow: hidden;
   width: 200%;
   gap: 20px;
+  border: 1px solid #2e2e2e;
+  min-height: 80px;
+  max-height: 80px;
+  align-items: center;
 }
 
-.epg-channel p {
-  margin: 5px 0;
+.epg-channel > p {
+  min-width: 138px;
+  max-width: 138px;
+}
+
+.epg-program {
+  min-width: 150px;
+  border-left: 2px solid #8f8f8f;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.epg-program > p {
+  margin-left: 10px;
+}
+
+#epg-current-time {
+  position: absolute;
+  border-left: 2px solid red; /* Set the color and thickness of the current time line */
+  height: 100%; /* Extend the line to the bottom of the container */
+  top: 0;
+  left: 0;
 }
 
 .program {
