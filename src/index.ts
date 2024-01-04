@@ -29,8 +29,6 @@ modal.setContent(`
         <input placeholder="Enter URL here..." id="playlist-url" class="playlist-url playlist-input" type="text"></input>
         <div class="separator-s"></div>
         <input placeholder="Enter name here..." id="playlist-name" class="playlist-name playlist-input" type="text"></input>
-        <div class="separator-s"></div>
-        <input placeholder="Enter EPG URL (Optional)..." id="playlist-epg" class="playlist-name playlist-input"></input>
         <div class="separator"></div>
         <button id="add-playlist-btn" class="tingle-btn tingle-btn--primary add-playlist-btn">Add</button>
     </div>
@@ -178,8 +176,6 @@ function openEditModal(playlistName: string, playlistURL: string = "", playlistE
         <input placeholder="Enter URL here..." id="edit-playlist-url" class="playlist-url playlist-input" value=${decodeURIComponent(playlistURL)} type="text"></input>
         <div class="separator-s"></div>
         <input placeholder="Enter name here..." id="edit-playlist-name" class="playlist-name playlist-input" value=${playlistName} type="text"></input>
-        <div class="separator-s"></div>
-        <input placeholder="Enter EPG URL (Optional)..." id="edit-playlist-epg" class="playlist-name playlist-input" value=${playlistEPG}></input>
         <div class="separator"></div>
         <button id="edit-playlist-btn" class="tingle-btn tingle-btn--primary add-playlist-btn">Edit</button>
         <div class="separator-s"></div>
