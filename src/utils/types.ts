@@ -5,12 +5,26 @@ interface PlaylistObject {
   };
 }
 
-interface EPGObject {
-  [Object: string]: {
-    channels: Array<Object>;
-    programmes: Array<Object>;
-    generatorInfoName: string;
-  };
+interface Channel {
+  _value: string;
+  site: string;
+  lang: string;
+  xmltv_id: string;
+  site_id: string;
+}
+
+interface ChannelGroup {
+  channels: Channel[];
+}
+
+interface Programme {
+  
+}
+
+interface Root {
+  channels: ChannelGroup[];
+  programmes: any[];
+  
 }
 
 type validPlayers = "mpv" | "vlc";
@@ -47,4 +61,4 @@ let mpvHWDecodingTypes = [
   "rkmpp",
 ];
 
-export { PlaylistObject, validPlayers, mpvHWDecodingTypes, EPGObject };
+export { PlaylistObject, validPlayers, mpvHWDecodingTypes, Channel, ChannelGroup, Root };

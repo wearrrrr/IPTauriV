@@ -1,12 +1,11 @@
 import { openExternalPlayer, preflightRequest } from "./utils/external_player";
 import { dummyImages, generateAndCacheDummyImage } from "./utils/image";
-import { downloadPlaylist, verifyParams, parse, checkDownloadStatus, DlStatus, deleteFailedDownload, parseEPGXMLData, checkEPGExists, downloadEPGXML } from "./utils/parser";
+import { downloadPlaylist, verifyParams, parse, checkDownloadStatus, DlStatus, deleteFailedDownload, checkEPGExists, downloadEPGXML } from "./utils/parser";
 import { getClient } from "@tauri-apps/api/http";
 import { createToast } from "./utils/toast";
 import { appDataDir } from "@tauri-apps/api/path";
 import { readTextFile, writeTextFile } from "@tauri-apps/api/fs";
 import { fs } from "@tauri-apps/api";
-import { EPGObject } from "./utils/types";
 
 const URLParams = new URLSearchParams(window.location.search)
 const httpClient = await getClient();
@@ -65,7 +64,6 @@ try {
     throw new Error("Parameter verification failed! " + err)
 }
 playlistName.textContent = params.name;
-
 if (await checkDownloadStatus(params.name, params.url) != DlStatus.FS_EXISTS) {
     await downloadPlaylist(params.url, params.name, params.epgURL, playlistDownloadContainer, playlistDownloadProgress).then(async (result) => {
         if (result == DlStatus.DOWNLOAD_ERROR) {
@@ -193,12 +191,6 @@ async function loadEPG() {
                     }
                 })
             }
-            console.time("EPG Parse")
-            fs.readTextFile(`${await appDataDir()}epg/${params.name}.xml`).then(async (data) => {
-                let dataJSON: EPGObject = (await parseEPGXMLData(data) as EPGObject);
-                console.log(dataJSON); 
-                console.timeEnd("EPG Parse")
-            })
         })
     } else {
         console.log("No EPG Found!")
@@ -208,6 +200,10 @@ async function loadEPG() {
 epgButton.addEventListener('click', async () => {
     loadEPG();
 })
+
+epgButton.addEventListener('click', () => {
+    window.location.href = `/epg/?name=${params.name}&url=${params.url}&epg=${params.epgURL}`
+});
 
 
 // console.time("EPG Parse");
