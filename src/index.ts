@@ -30,7 +30,6 @@ modal.setContent(`
     <div class="playlist-url-container">
         <input placeholder="Playlist URL" id="playlist-url" class="playlist-url playlist-input" type="text"></input>
         <div class="separator-s"></div>
-<<<<<<< HEAD
         <input placeholder="Playlist Name" id="playlist-name" class="playlist-name playlist-input" type="text"></input>
         <div class="separator-s"></div>
         <input placeholder="Username (Optional)" id="playlist-username" class="playlist-user playlist-input"></input>
@@ -39,9 +38,6 @@ modal.setContent(`
             <img src="/src/assets/eye_fill.svg" id="pw-eye"></img>
             <input placeholder="Password (Optional)" id="playlist-password" type="password" class="playlist-pass playlist-input"></input>
         </div>
-=======
-        <input placeholder="Enter name here..." id="playlist-name" class="playlist-name playlist-input" type="text"></input>
->>>>>>> refs/remotes/origin/main
         <div class="separator"></div>
         <button id="add-playlist-btn" class="tingle-btn tingle-btn--primary add-playlist-btn">Add</button>
     </div>

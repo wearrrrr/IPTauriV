@@ -1,20 +1,30 @@
 import { openExternalPlayer, preflightRequest } from "./utils/external_player";
 import { dummyImages, generateAndCacheDummyImage } from "./utils/image";
-import { downloadPlaylist, verifyParams, parse, checkDownloadStatus, DlStatus, deleteFailedDownload, checkEPGExists, downloadEPGXML } from "./utils/parser";
+import { downloadPlaylist, verifyParams, parse, checkDownloadStatus, DlStatus, deleteFailedDownload } from "./utils/parser";
 import { getClient } from "@tauri-apps/api/http";
 import { createToast } from "./utils/toast";
 import { appDataDir } from "@tauri-apps/api/path";
 import { readTextFile, writeTextFile } from "@tauri-apps/api/fs";
 import { fs } from "@tauri-apps/api";
+import { Base64 } from "./utils/base64";
 
 const URLParams = new URLSearchParams(window.location.search)
 const httpClient = await getClient();
 httpClient;
 
-let params = {
+export type ParamsObject = {
+    url: string,
+    name: string,
+    username: string | null,
+    password: string | null,
+}
+
+
+let params: ParamsObject = {
     url: URLParams.get('url')!.toString(),
     name: URLParams.get('name')!.toString(),
-    epgURL: URLParams.get('epg')
+    username: URLParams.get('username')?.toString() || null,
+    password: URLParams.get('password')?.toString() || null,
 }
 
 const playlistName = document.getElementById('playlist-name') as HTMLParagraphElement;
@@ -23,7 +33,6 @@ const searchInput = document.getElementById('search-input') as HTMLInputElement;
 const searchResultsFound = document.getElementById('results-found') as HTMLSpanElement;
 const playlistDownloadContainer = document.getElementById('playlist-dl-container') as HTMLDivElement;
 const playlistDownloadProgress = document.getElementById('playlist-download-progress') as HTMLDivElement;
-const epgButton = document.getElementById('epg-button') as HTMLButtonElement;
 
 let playlistItemsLength = 0;
 let registedFilters = new Set<string>();
@@ -65,7 +74,7 @@ try {
 }
 playlistName.textContent = params.name;
 if (await checkDownloadStatus(params.name, params.url) != DlStatus.FS_EXISTS) {
-    await downloadPlaylist(params.url, params.name, params.epgURL, playlistDownloadContainer, playlistDownloadProgress).then(async (result) => {
+    await downloadPlaylist(params, playlistDownloadContainer, playlistDownloadProgress).then(async (result) => {
         if (result == DlStatus.DOWNLOAD_ERROR) {
             await deleteFailedDownload(params.name);
             window.location.reload();
@@ -94,13 +103,20 @@ await parse(params.name).then(async (data) => {
 
     async function loadItemsInBatch() {
         for (let i = itemsLoaded.size; i < Math.min(itemsLoaded.size + batchSize, totalItems); i++) {
-            await generateAndCacheDummyImage(data.items[i].name.charAt(0).toUpperCase());
             if (!itemsLoaded.has(i)) {
                 const item = data.items[i];
-    
+                if (item.name == "") {
+                    item.name = item.url.slice(item.url.lastIndexOf("/") + 1).replace(".m3u8", "");
+                }
+                await generateAndCacheDummyImage(item.name.charAt(0).toUpperCase());
+                let itemURL = item.url;
+                if (params.username && params.password) {
+                    itemURL = itemURL.replace('://', `://${params.username}:${Base64.decode(params.password)}@`)
+                }
+
                 const channel = document.createElement('div');
                 channel.classList.add('channel');
-                channel.dataset.url = item.url;
+                channel.dataset.url = itemURL;
                 channel.dataset.group = item.group.title;
                 channel.onclick = async () => {
                     if (await fs.exists(`${await appDataDir()}player.json`) == false) {
@@ -109,11 +125,11 @@ await parse(params.name).then(async (data) => {
                     let playerJSON = await readTextFile(`${await appDataDir()}player.json`);
                     let player = JSON.parse(playerJSON).player;
                     createToast(`Opening ${item.name} in ${player || 'VLC'}...`, 4000);
-                    if (!await preflightRequest(item.url)) {
+                    if (!await preflightRequest(itemURL)) {
                         createToast(`Failed to open ${item.name} in ${player || 'VLC'}!`, 4000);
                         return;
                     }
-                    await openExternalPlayer(player, item.url, item.name)
+                    await openExternalPlayer(player, itemURL, item.name)
                 }
                 if (item.group.title !== '') {
                     checkAndRegisterNewFilter(item.group.title)
@@ -123,23 +139,16 @@ await parse(params.name).then(async (data) => {
                 image.classList.add('channel-logo');
                 image.loading = 'lazy';
 
-                image.addEventListener('error', () => {
-                    try {
-                        image.src = dummyImages[item.name.charAt(0).toUpperCase()];
-                    } catch {
-                        console.error("Failed to load image and backup image for: " + item.name)
-                    }
-                })
-
                 image.onload = function() {
                     if (image.naturalWidth == 1) {
-                        image.src = dummyImages[item.name.charAt(0).toUpperCase()];
+                        image.src = item.tvg.logo || dummyImages[item.name.charAt(0).toUpperCase()];
                     }
                 };
 
                 if (item.tvg.logo) {
                     item.tvg.logo = item.tvg.logo.replace(/^(http|https)\/\//, '$1://');
                 }
+                console.log(dummyImages[item.name.charAt(0).toUpperCase()])
                 image.src = item.tvg.logo || dummyImages[item.name.charAt(0).toUpperCase()];
     
                 const titleElement = document.createElement('p');
@@ -178,41 +187,6 @@ await parse(params.name).then(async (data) => {
     totalItems = data.items.length;
     loadItemsInBatch();
 });
-
-async function loadEPG() {
-    if (params.epgURL !== null) {
-        await checkEPGExists(params.name).then(async (result) => {
-            if (result == DlStatus.DOWNLOAD_NEEDED) {
-                await downloadEPGXML(params.epgURL as string, params.name).then(async (result) => {
-                    if (result == DlStatus.DOWNLOAD_ERROR) {
-                        alert("Failed to download EPG file!")
-                        await deleteFailedDownload(params.name);
-                        window.location.reload();
-                    }
-                })
-            }
-        })
-    } else {
-        console.log("No EPG Found!")
-    }
-}
-
-epgButton.addEventListener('click', async () => {
-    loadEPG();
-})
-
-epgButton.addEventListener('click', () => {
-    window.location.href = `/epg/?name=${params.name}&url=${params.url}&epg=${params.epgURL}`
-});
-
-
-// console.time("EPG Parse");
-// await httpClient.get("https://epg.112114.xyz/pp.xml", { responseType: ResponseType.Text }).then(async (response) => {
-//     parseEPGXMLData(response.data as string).then((data) => {
-//         console.timeEnd("EPG Parse");
-//         console.log(data);
-//     })
-// });
 
 
 

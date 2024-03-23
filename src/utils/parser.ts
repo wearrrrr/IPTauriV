@@ -1,16 +1,11 @@
 import iptvParser from "iptv-playlist-parser";
-import { parseXmltv } from '@iptv/xmltv';
 import { urlRegex } from "./regex";
 import * as path from '@tauri-apps/api/path';
 import * as fs from "@tauri-apps/api/fs"
 import { download } from "tauri-plugin-upload-api";
 import { platform } from "@tauri-apps/api/os";
-
-interface ParamsObject {
-    url: string,
-    name: string,
-    epgUrl?: string
-}
+import { ParamsObject } from "../playlist";
+import { Base64 } from "./base64";
 
 enum DlStatus {
     OK,
@@ -26,6 +21,7 @@ const appdata = await path.appDataDir();
 async function parse(playlist: string) {
     let playlistText = await fs.readTextFile(`${appdata}playlists/${playlist}.m3u8`);
     let data = iptvParser.parse(playlistText);
+    console.log(data)
     return data;
 }
 
@@ -73,28 +69,6 @@ async function checkDownloadStatus(name: string, url: string) {
     return status;
 }
 
-async function checkEPGExists(name: string) {
-    return new Promise(async (resolve, reject) => {
-        if (await fs.exists(`${appdata}epg/${name}.xml`) == true) {
-            resolve(DlStatus.FS_EXISTS)
-        } else {
-            resolve(DlStatus.DOWNLOAD_NEEDED)
-        }
-        reject(DlStatus.UNKNOWN_ERROR)
-    });
-}
-
-async function downloadEPGXML(url: string, name: string) {
-    await fs.createDir(`${appdata}epg/`, {recursive: true})
-    await download(url, `${appdata}epg/${name}.xml`).then(() => {
-        return DlStatus.OK;
-    }).catch((err) => {
-        console.error(err);
-        return DlStatus.DOWNLOAD_ERROR;
-    });
-    return DlStatus.UNKNOWN_ERROR;
-}
-
 
 
 async function deleteFailedDownload(name: string) {
@@ -105,20 +79,26 @@ async function deleteFailedDownload(name: string) {
     }
 }
 
-async function downloadPlaylist(url: string, name: string, epg: string | null, downloadProgressContainer: HTMLDivElement, downloadProgressDisplay: HTMLSpanElement) {
-    if (epg == null) {
-        epg = "N/A"
-    }
+async function downloadPlaylist(params: ParamsObject, downloadProgressContainer: HTMLDivElement, downloadProgressDisplay: HTMLSpanElement) {
     let totalBytesDownloaded = 0;
+    // I need to do this because we mutate the URL to include the username and password if they exist, which throws off caching.
+    let playlistURL = params.url;
     downloadProgressContainer.classList.add('active');
+    if (params.username && params.password) {
+        if (params.username != "" && params.username != "") {
+            params.url = params.url.replace('://', `://${params.username}:${Base64.decode(params.password)}@`);
+        }
+    }
 
-    await download(url, `${appdata}playlists/${name}.m3u8`, (progress: number, total: number) => {
+
+    await download(params.url, `${appdata}playlists/${params.name}.m3u8`, (progress: number, total: number) => {
         totalBytesDownloaded += progress;
         downloadProgressDisplay.textContent = `${formatBytes(totalBytesDownloaded)} / ${formatBytes(total)}`;
     }).then(async () => {
         downloadProgressDisplay.textContent = 'Download complete!';
         downloadProgressContainer.classList.remove('active');
-        updateSavedFilesList(url, name, epg!);
+        console.log(params)
+        updateSavedFilesList(playlistURL, params.name);
         return DlStatus.OK
     }).catch((err) => {
         console.error(err);
@@ -141,20 +121,9 @@ function verifyParams(params: ParamsObject) {
     return "OK";
 }
 
-async function parseEPGXMLData(data: string) {
-    return new Promise((resolve, reject) => {
-        try {
-            resolve(parseXmltv(data))
-        } catch (error) {
-            reject("Error parsing XML data!" + error);
-        }
-    });
-}
-
 type PlaylistData = {
     name: string,
     url: string,
-    epg: string
 }
 
 type SavedFiles = {
@@ -171,15 +140,14 @@ async function getSavedFiles(): Promise<SavedFiles> {
     }
 }
 
-async function updateSavedFilesList(url: string, name: string, epg: string) {
+async function updateSavedFilesList(url: string, name: string) {
     let newPlaylistData: PlaylistData = {
         name: name,
         url: url,
-        epg: epg,
     }
     let savedFiles = await getSavedFiles();
     savedFiles[name] = newPlaylistData;
     await fs.writeTextFile(`${appdata}cache.json`, JSON.stringify(savedFiles));
 }
 
-export { DlStatus, parse, verifyParams, downloadPlaylist, checkDownloadStatus, deleteFailedDownload, parseEPGXMLData, downloadEPGXML, checkEPGExists };
+export { DlStatus, parse, verifyParams, downloadPlaylist, checkDownloadStatus, deleteFailedDownload };

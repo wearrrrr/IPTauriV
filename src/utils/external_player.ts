@@ -19,7 +19,6 @@ export async function openExternalPlayer(player: string | null, url: string, nam
     if (player == null) {
         player = 'vlc';
     }
-    let titleFlag = '';
     let mpvPlayerFlags = [];
     let vlcPlayerFlags = [];
     let preferredFlags: string[] = [];
