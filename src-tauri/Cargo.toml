@@ -22,6 +22,10 @@ random_color = "0.6.1"
 actix-web = "4.4.0"
 actix-cors = "0.6.4"
 reqwest = "0.11.22"
+xml-rs = "0.8.19"
+tokio = "1.34.0"
+async-std = "1.12.0"
+quick-xml = "0.31.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

@@ -294,6 +294,18 @@ button {
   margin: 0 auto;
 }
 
+.pw-container {
+  width: 100%;
+  position: relative;
+}
+
+#pw-eye, #pw-eye-edit {
+  position: absolute;
+  left: 93%;
+  height: 100%;
+  cursor: pointer;
+}
+
 .separator-s {
   height: 10px;
 }

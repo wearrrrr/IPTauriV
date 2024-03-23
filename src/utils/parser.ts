@@ -29,17 +29,17 @@ async function parse(playlist: string) {
     return data;
 }
 
-function formatBytes(bytes: number, decimals = 2) {
-    if (!+bytes) return '0 Bytes'
+function formatBytes(bytes: number, decimals: number = 2) {
+    if (bytes == 0) return '0 Bytes'
 
-    const k = 1024
-    const dm = decimals < 0 ? 0 : decimals
-    // If a playlist ever gets to 1PiB, I'll be impressed and VERY concerned, good luck parsing that with this codebase lol.
-    const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB']
+    const kb = 1024
+    const decimalCount = decimals < 0 ? 0 : decimals
+    // If a playlist ever gets to 1TiB, I'll be impressed and VERY concerned, good luck parsing that with this codebase lol.
+    const sizes = ['Bytes', 'KiB', 'MiB', 'GiB']
 
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    const idx = Math.floor(Math.log(bytes) / Math.log(kb))
 
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i] || '???'}`
+    return `${parseFloat((bytes / Math.pow(kb, idx)).toFixed(decimalCount))} ${sizes[idx] || '???'}`
 }
 
 async function checkDownloadStatus(name: string, url: string) {

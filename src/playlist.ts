@@ -24,6 +24,7 @@ const searchInput = document.getElementById('search-input') as HTMLInputElement;
 const searchResultsFound = document.getElementById('results-found') as HTMLSpanElement;
 const playlistDownloadContainer = document.getElementById('playlist-dl-container') as HTMLDivElement;
 const playlistDownloadProgress = document.getElementById('playlist-download-progress') as HTMLDivElement;
+const epgButton = document.getElementById('epg-button') as HTMLButtonElement;
 
 let playlistItemsLength = 0;
 let registedFilters = new Set<string>();
@@ -195,7 +196,7 @@ async function loadEPG() {
             console.time("EPG Parse")
             fs.readTextFile(`${await appDataDir()}epg/${params.name}.xml`).then(async (data) => {
                 let dataJSON: EPGObject = (await parseEPGXMLData(data) as EPGObject);
-                (dataJSON.channels); 
+                console.log(dataJSON); 
                 console.timeEnd("EPG Parse")
             })
         })
@@ -204,7 +205,9 @@ async function loadEPG() {
     }
 }
 
-loadEPG;
+epgButton.addEventListener('click', async () => {
+    loadEPG();
+})
 
 
 // console.time("EPG Parse");
